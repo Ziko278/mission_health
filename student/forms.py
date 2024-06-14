@@ -1,0 +1,50 @@
+from django.contrib.auth.forms import UserCreationForm
+from django.forms import ModelForm, Select, TextInput, Textarea, CheckboxSelectMultiple, DateInput
+from django.contrib.auth.models import User
+from django import forms
+from django.core.exceptions import ValidationError
+from student.models import *
+
+
+class CohortForm(ModelForm):
+    """"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control',
+                'autocomplete': 'off'
+            })
+
+    class Meta:
+        model = CohortModel
+        fields = '__all__'
+        widgets = {
+            'start_date': TextInput(attrs={
+                'type': 'date'
+            }),
+            'end_date': TextInput(attrs={
+                'type': 'date'
+            })
+        }
+
+
+class StudentForm(ModelForm):
+    """"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control',
+                'autocomplete': 'off'
+            })
+
+    class Meta:
+        model = StudentsModel
+        fields = '__all__'
+        widgets = {
+
+        }
+
+
+

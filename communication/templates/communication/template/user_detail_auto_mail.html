@@ -1,0 +1,19 @@
+{% extends 'communication/template/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+<div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up">
+    <div class="icon flex-shrink-0"><i class="fa-solid fa-person"></i></div>
+    <div>
+        <h4 class="title">{{subject}}</h4>
+        <p class="description" style="text-align:justify">
+            Hi {{ full_name|title }}, Your Username and Password combinations for your {{ school_info|title }}
+            account is {{ username }} and {{ password }} Respectively
+        </p>
+        <p>Please keep this safe and do not share with anyone else.</p>
+
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'admin_site/layout.html' %}
+{% load static %}
+{% block 'main' %}
+
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- row -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card profile-card card-bx m-b30">
+                <div class="card-header">
+                    <h6 class="title"><b>Human Resource Setting</b></h6>
+                </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Auto Generate Staff ID</label>
+                                <br />
+                                {{ form.auto_generate_staff_id }}
+                            </div>
+
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Auto Staff ID Prefix</label>
+                                <br />
+                                {{ form.staff_id_prefix }}
+                            </div>
+
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Auto Generate Staff Logins</label>
+                                <br />
+                                {{ form.auto_generate_logins }}
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input class="btn btn-primary" type="submit" value="SAVE" />
+
+                    </div>
+
+            </div>
+        </div>
+    </div>
+
+</form>
+{% endblock %}

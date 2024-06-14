@@ -1,0 +1,140 @@
+{% extends 'admin_site/layout.html' %}
+{% load static %}
+{% block 'main' %}
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">ACTIONS:
+                <a title="Edit Student" href="{% url 'student_edit' student.id %}" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                <a title="Delete Student" href="{% url 'student_delete' student.id %}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+
+            </h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body pt-3">
+                <ul class="nav nav-tabs nav-tabs-bordered">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">BIO DATA</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">RESULT</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">ATTENDANCE</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">FEES</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content pt-2">
+                    <div class="tab-pane fade show active profile-overview" id="profile-overview">
+
+                        <div class="col-12 grid-margin">
+                            <div class="card">
+                                <div class="card-body" style="padding:20px">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="card-title"> STUDENT INFORMATION </p>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <img {% if student.image %} src="/media/{{ student.image }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %} style="width:100px;height:100px;border-radius:5px;" />
+                                                    <p style="margin-top:5px;" class="text-center"><span class="text-center {% if student.study_status|lower == 'active' %} text-success {% else %} text-danger {% endif %} "> {{student.study_status|upper}} </span> </p>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <p>{{ student.surname|title }} {% if student.middle_name %} {{ student.middle_name|title }} {% endif %} {{ student.last_name|title }}</p>
+                                                    <p>{% if student.registration_number %} {{student.registration_number|upper}} {% else %} NO REGISTRATION NUMBER {% endif %}</p>
+                                                    <p>{{student.cohort|title}} (Cohort) </p>
+                                                    <p>{{student.gender|title}} </p>
+                                                 </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <br><br><br>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p><b>Country:</b> {% if student.country %} {{student.country|title}} {% else %} Country Not Specified {% endif %}</p>
+                                                    <p><b>State:</b> {% if student.state %} {{student.state|title}} {% else %} State Not Specified {% endif %}</p>
+                                                    <p><b>Phone:</b> {% if student.mobile %} (+{{student.country.country_code}}) - {{student.mobile|title}} {% else %} Mobile Not Provided {% endif %}</p>
+                                                    <p><b>Email:</b> {% if student.email %} {{student.email|lower}} {% else %} Email Not Provided {% endif %}</p>
+                                                    <p><b>Registration Date:</b> {{student.registration_date|date}}</p>
+                                                    <p><b>Username:</b> {{student.registration_number}}</p>
+                                                    <p><b>Default Password:</b> {{student.student_profile.default_password}}</p>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                        <div class="row">
+                            <div class="col-12 grid-margin">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade pt-3" id="profile-settings">
+                        <h5 class="card-title"></h5>
+
+                    </div>
+
+                    <div class="tab-pane fade pt-3" id="profile-change-password">
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<style>
+    label {
+        width: 90px
+    }
+    .info {
+        margin-left:10px
+    }
+</style>
+
+<script src="{% static 'admin_dashboard/scripts/jquery.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script type="text/javascript">
+	function printID() {
+		const { jsPDF } = window.jspdf;
+
+		let doc = new jsPDF(
+		'l', 'mm', [1500, 1400]);
+		let pdfjs = document.querySelector('#id-card');
+
+		doc.html(pdfjs, {
+			callback: function(doc) {
+				doc.save("{{student.surname|title}}-{{student.last_name|title}}-ID-Card.pdf");
+			},
+			x: 12,
+			y: 12
+		});
+	}
+</script>
+{%endblock %}

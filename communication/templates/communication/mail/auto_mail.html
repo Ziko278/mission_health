@@ -1,0 +1,52 @@
+{% extends 'admin_dashboard/layout.html' %}
+{% block 'main' %}
+{% load static %}
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+        <div class="card-body">
+            <h5 class="card-title">Send Fee Payment Reminder</h5>
+            <form method="POST" action="{% url 'fee_reminder_auto_mail' %}">
+                {% csrf_token %}
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <p>Send Reminder to all students with an outstanding Fee Payment</p>
+                        <p>
+                            <br />
+                            <input type="submit" class="btn btn-success" value="Send Mail">
+                        </p>
+                    </div><br />
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+        <div class="card-body">
+            <h5 class="card-title">Send Username and Default Password</h5>
+            <form method="POST" action="{% url 'user_account_auto_mail' %}">
+                {% csrf_token %}
+                <div class="col-md-12">
+                    <div class="form-floating">
+                        <h4 class="">Select Recipients</h4>
+                        <input type="checkbox" style="margin-left:30px" value="student" name="recipient" /> Active Students
+                        <input type="checkbox" style="margin-left:30px" value="parent" name="recipient" /> Active Parents
+                        <input type="checkbox" style="margin-left:30px" value="staff" name="recipient" /> Active Staff
+                        <input type="hidden" name="mail_type" value="user detail" />
+                        <p>
+                            <br />
+                            <input type="submit" class="btn btn-success" value="Send Mail">
+                        </p>
+                    </div><br />
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'communication/template/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+<div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up">
+    <div class="icon flex-shrink-0"><i class="fa-solid fa-person"></i></div>
+    <div>
+        <h4 class="title">{{subject}}</h4>
+        <p class="description" style="text-align:justify">
+            Hi {{ student|title }}, This is to remin you of your fee balance of {{ fee_balance_in_word|title }}
+            Naira Only (N{{ fee_balance|intcomma }}) being payment for {% for fee_master in fee_list %}
+            {{ fee_master.fee|title }}{% if forloop.counter < fee_list|length %}, {% endif %} {% endfor %}
+        </p>
+        {% if outstanding_fee > 0 %}
+        <p>
+            You also have an outstanding fee of {{ outstanding_fee|title }} Naira Only (N{{ outstanding_fee|intcomma }})
+            making it a total of {{ total_in_word|title }} Naira Only (N{{ total_fee|intcomma }})
+        </p>
+        {% endif %}
+
+        <p>Please Make full payments as soon as possible to enjoy all benefits avoid any penalty. Thank You</p>
+
+
+    </div>
+</div>
+
+
+{%endblock %}

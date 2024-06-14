@@ -1,0 +1,59 @@
+{% extends 'admin_dashboard/layout.html' %}
+{% block 'main' %}
+{% load static %}
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+        <div class="card-body">
+            <h5 class="card-title">Send Message</h5>
+            <form method="POST" action="">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <input type="text" autocomplete="off" name="subject" class="form-control" required />
+                            <input type="hidden" name="type" value="{{ user.profile.type }}" />
+                            <input type="hidden" name="user" value="{{ user.id }}" />
+                            <label for="floatingName">Mail Subject <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <input type="text" autocomplete="off" name="email" placeholder="Enter Mail Addresses separated by comma" class="form-control" />
+                            <label for="floatingName">Email Addresses Separated by comma <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <h4 class="card-title">Select Additional Recipients</h4>
+                            <input type="checkbox" style="margin-left:30px" value="student" name="recipient" /> Active Students
+                            <input type="checkbox" style="margin-left:30px" value="parent" name="recipient" /> Active Parents
+                            <input type="checkbox" style="margin-left:30px" value="staff" name="recipient" /> Active Staff
+                            <input type="checkbox" style="margin-left:30px" value="all parent" name="recipient" /> All Parents
+
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="card"  style="height:400px;overflow:auto">
+                            <div class="card-body">
+                                <h5 class="card-title">MESSAGE</h5>
+                                <textarea class="tinymce-editor" name="message" style="height:300px">
+
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="submit" style="width:200px;margin:auto" value="Send Mail" class="btn btn-success">
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
