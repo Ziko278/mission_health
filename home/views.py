@@ -57,3 +57,15 @@ def login_view(request):
         pass
 
     return render(request, 'home/login.html')
+
+
+def pre_login_view(request):
+    if request.method == 'POST':
+        intended_url = request.POST.get('next')
+    else:
+        intended_url = request.GET.get('next')
+
+    if 'myadmin' in intended_url.lower():
+        return redirect('admin_login')
+    return redirect('login')
+

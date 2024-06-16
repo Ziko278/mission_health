@@ -1,9 +1,8 @@
-{% extends 'admin_dashboard/layout.html' %}
+{% extends 'admin_site/layout.html' %}
 {% load static %}
 {% load humanize %}
-{% load fee_custom_filters %}
 {% block 'main' %}
-{% if form.errors %}
+
 <style>
 	td, th{
 		border:1px solid black;
@@ -42,15 +41,16 @@
 
 
 </style>
+{% if form.errors %}
         <h5 class="text-danger">{{form.errors}}</h5>
         {% endif %}
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Name: {{ fee_payment.student|title }} <br />
-                Reg No: {{ fee_payment.student.registration_number|upper }} <br />
-                Class: {% if fee_payment.student.student_class %} {{ fee_payment.student.student_class|upper }} {{ fee_payment.student.class_section|upper }} {% endif %}
-                <img class="rounded-circle" style="margin-top:-30px;display:inline;float:right;width:100px;height:100px;border-radius:5px;" {% if fee_payment.student.image %} src="/media/{{ fee_payment.student.image }}" {% else %} src="{% static 'admin_dashboard/images/default_image.jpg' %}" {% endif %} /></h4>
+            <h4 class="card-title">Name: {{ training_payment.student|title }} <br />
+                Reg No: {{ training_payment.student.registration_number|upper }} <br />
+                Cohort: {{ training_payment.cohort|upper }}
+                <img class="rounded-circle" style="margin-top:-30px;display:inline;float:right;width:100px;height:100px;border-radius:5px;" {% if training_payment.student.image %} src="{{ training_payment.student.image.url }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %} /></h4>
             <p>
                 <button type="button" title="Print Detailed Receipt" id="download-detail-receipt-button" class="btn btn-primary"><i class="bi bi-printer-fill"></i> </button>
                 <button type="button" title="Print Receipt Summary" id="download-summary-receipt-button" data-bs-toggle="modal" data-bs-target="#bulk-payment" class="btn btn-primary"><i class="bi bi-printer"></i> </button>
@@ -76,11 +76,10 @@
 
                 <div class="tab-content pt-2">
                     <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                        <h5 class="card-title">Fee Payment Detail for {{fee_payment.student|title}}, {% if fee_payment.student.student_class %} {{ fee_payment.student.student_class }} {{ fee_payment.student.class_section }} - {% endif %} {{ fee_payment.term|title }} {{ fee_payment.session }} Session </h5>
+                        <h5 class="card-title">Fee Payment Detail for {{training_payment.student|title}}, {% if training_payment.student.student_class %} {{ training_payment.student.student_class }} {{ training_payment.student.class_section }} - {% endif %} {{ training_payment.term|title }} {{ training_payment.session }} Session </h5>
                         <table class="table table-hover">
                             <thead>
                             <tr>
-                                <th scope="col">#</th>
                                 <th scope="col">Fee</th>
                                 <th scope="col">Amount Paid</th>
                                 <th scope="col">Total Paid</th>
@@ -89,20 +88,17 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% if fee_payment.fees.all %}
-                            {% for payment in fee_payment.fees.all %}
+
                             <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{ payment.fee.fee|title }}</td>
-                                <td>{{ payment.amount }}</td>
-                                <td>{{ payment.fee|get_amount_paid:fee_payment.student.id }}</td>
-                                <td>{{ payment.fee|get_fee_balance:fee_payment.student.id }}</td>
+                                <td>{{ training_payment.course|title }}</td>
+                                <td>{{ training_payment.currency.symbol }}{{ training_payment.amount_paid|intcomma }}</td>
+                                <td></td>
+                                <td></td>
                             </tr>
-                            {% endfor %}
-                            {% endif %}
+
                             </tbody>
                         </table>
-                        <h4 class="card-title">Amount: {{ amount_in_word|title }} Naira Only ({{fee_payment.amount|intcomma}})</h4>
+                        <h4 class="card-title">Amount: {{ amount_in_word|title }} {{ training_payment.currency|title }} Only ({{ training_payment.currency.symbol }}{{training_payment.amount_paid|intcomma}})</h4>
                     </div>
 
                     <div class="tab-pane fade profile-edit pt-3" id="current-payment">
@@ -111,18 +107,18 @@
                                 <div class="" style="color:black;font-family:cursive;background-color:white;border-bottom:2px solid black;height:135px">
                                     <div class="row">
                                         <div class="col-2">
-                                             <image {% if student.image %} src="/media/{{ student.image }}" {% else %} src="{% static 'admin_dashboard/images/default_image.jpg' %}" {% endif %} style="width:100%;height:133px;border-radius:0px;" />
+                                             <img {% if training_payment.student.image %} src="{{ training_payment.student.image.url }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %} style="width:100%;height:133px;border-radius:0px;" />
                                         </div>
 
                                         <div class="col-8" style="padding:15px">
-                                            <h4 class="text-center" style="color:grey;font-family:serif"><b>{{ general_setting.name|upper }}</b></h4>
-                                            <h6 class="text-center" style="color:grey;font-size:14px;margin-top:10px"><b>...Laying Solid Foundation</b></h6>
-                                            <h6 class="text-center" style="color:grey">PLOT 78, CADASTRAL ZONE C08 DAKWO</h6>
-                                            <p class="text-center" style="color:grey;margin-bottom:10px;font-size:13px">080 3285 5344 | info@daisesacademy.com.ng | https://info@daisesacademy.com.ng </p>
+                                            <h4 class="text-center" style="color:grey;font-family:serif"><b>{{ site_info.name|upper }}</b></h4>
+                                            <h6 class="text-center" style="color:grey;font-size:14px;margin-top:10px"><b>...Bridging the Knowledge Gap</b></h6>
+                                            <h6 class="text-center" style="color:grey">{{ site_info.address|title }}</h6>
+                                            <p class="text-center" style="color:grey;margin-bottom:10px;font-size:13px">{{ site_info.mobile_1 }} | {{ site_info.email|lower }}  </p>
                                         </div>
 
                                         <div class="col-2">
-                                             <image src="/media/{{ general_setting.logo }}" style="width:100%;height:133px;border-radius:0px;" />
+                                             <img src="{{ site_info.logo.url }}" style="width:100%;height:133px;border-radius:0px;" />
                                         </div>
                                     </div>
                                 </div>
@@ -131,24 +127,22 @@
                                     <p class="text-center" style="font-weight:bold;font-family:cursive">Fee Payment Receipt </p>
                                 </div>
 
-                                <div style="padding:10px;font-family:cursive">
+                                <div style="padding:10px;font-family:sans-serif">
                                     <div class="row">
                                         <div class="col-6">
-                                            No: {{ fee_payment.reference|upper }}
+                                            No: {{ training_payment.reference|upper }}
                                         </div>
                                         <div class="col-6">
-                                            Date: {{ fee_payment.date|date }}
+                                            Date: {{ training_payment.payment_date|date }}
                                         </div>
-                                        <div class="col-12">
-                                            Name: {{ fee_payment.student|title }}
+                                        <div class="col-6">
+                                            Name: {{ training_payment.student|title }}
                                         </div>
 
                                         <div class="col-6">
-                                            Session: {{ fee_payment.session}}
+                                            Cohort: {{ training_payment.cohort}}
                                         </div>
-                                        <div class="col-6">
-                                            Term: {{ fee_payment.term|upper }}
-                                        </div>
+
                                     </div>
 
                                 </div>
@@ -163,25 +157,25 @@
                                       </tr>
                                     </thead>
                                     <tbody>
-                                    {% for payment in fee_payment.fees.all %}
+
                                       <tr>
-                                            <th scope="row">{{ forloop.counter }}</th>
-                                            <td>{{ payment.fee.fee|title }}</td>
-                                            <td>{{ payment.amount|intcomma }}</td>
+                                            <th scope="row">1</th>
+                                            <td>{{ training_payment.course|title }}</td>
+                                            <td>{{ training_payment.amount_paid|intcomma }}</td>
                                       </tr>
 
-                                    {% endfor %}
+
                                      <tr>
                                         <td colspan="3" style="color:white;background:white">hi</td>
                                       </tr>
                                     <tr>
                                         <th></th>
                                         <th>Total</th>
-                                        <th>{{ fee_payment.amount|intcomma }}</th>
+                                        <th>{{ training_payment.currency.symbol }}{{ training_payment.amount_paid|intcomma }}</th>
                                     </tr>
                                     </tbody>
                                   </table>
-                                    <h4 class="card-title" style="padding:10px">{{ amount_in_word|title }} Naira Only</h4>
+                                    <h4 class="card-title" style="padding:10px">{{ amount_in_word|title }} {{ training_payment.currency|title }} Only</h4>
                                 </div>
                             </div>
                         </div>
@@ -191,16 +185,19 @@
                             <div style="background-color:white;border:2px solid skyblue;">
                                 <div class="" style="color:black;font-family:cursive;background-color:white;border-bottom:2px solid black;height:135px">
                                     <div class="row">
-
-                                        <div class="col-9" style="padding:15px">
-                                            <h4 class="text-center" style="color:grey;font-family:serif"><b>{{ general_setting.name|upper }}</b></h4>
-                                            <h6 class="text-center" style="color:grey;font-size:14px;margin-top:10px"><b>...Laying Solid Foundation</b></h6>
-                                            <h6 class="text-center" style="color:grey">PLOT 78, CADASTRAL ZONE C08 DAKWO</h6>
-                                            <p class="text-center" style="color:grey;margin-bottom:10px;font-size:13px">080 3285 5344 | info@daisesacademy.com.ng | https://info@daisesacademy.com.ng </p>
+                                        <div class="col-2">
+                                             <img {% if training_payment.student.image %} src="{{ training_payment.student.image.url }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %} style="width:100%;height:133px;border-radius:0px;" />
                                         </div>
 
-                                        <div class="col-3">
-                                             <image src="/media/{{ general_setting.logo }}" style="width:100%;height:133px;border-radius:0px;" />
+                                        <div class="col-8" style="padding:15px">
+                                            <h4 class="text-center" style="color:grey;font-family:serif"><b>{{ site_info.name|upper }}</b></h4>
+                                            <h6 class="text-center" style="color:grey;font-size:14px;margin-top:10px"><b>...Bridging the Knowledge Gap</b></h6>
+                                            <h6 class="text-center" style="color:grey">{{ site_info.address|title }}</h6>
+                                            <p class="text-center" style="color:grey;margin-bottom:10px;font-size:13px">{{ site_info.mobile_1 }} | {{ site_info.email|lower }}  </p>
+                                        </div>
+
+                                        <div class="col-2">
+                                             <img src="{{ site_info.logo.url }}" style="width:100%;height:133px;border-radius:0px;" />
                                         </div>
                                     </div>
                                 </div>
@@ -212,33 +209,32 @@
                                 <div style="padding:10px;font-family:cursive">
                                     <div class="row">
                                         <div class="col-6">
-                                            No: {{ fee_payment.reference|upper }}
+                                            No: {{ training_payment.reference|upper }}
                                         </div>
                                         <div class="col-6">
-                                            Date: {{ fee_payment.date|date }}
+                                            Date: {{ training_payment.payment_date|date }}
                                         </div>
-                                        <div class="col-12">
-                                            Name: {{ fee_payment.student|title }}
+                                        <div class="col-6">
+                                            Name: {{ training_payment.student|title }}
                                         </div>
 
                                         <div class="col-6">
-                                            Session: {{ fee_payment.session}}
+                                            Cohort: {{ training_payment.cohort}}
                                         </div>
-                                        <div class="col-6">
-                                            Term: {{ fee_payment.term|upper }}
-                                        </div>
+
                                     </div>
 
                                 </div>
 
                                 <div style="color:black">
-                                    <h4 class="card-title" style="padding:10px;color:black">The Sum of {{ amount_in_word|title }} Naira Only.</h4>
-                                    <h4 class="card-title" style="padding:10px;margin-top:-20px;color:black">Being Payment For {% for payment in fee_payment.fees.all %} {{ payment.fee.fee|title }}{% if forloop.counter != fee_payment.fees.all|length %}, {% endif %} {% endfor %} {{ fee_payment.session }} Session</h4>
-                                    <h4 class="card-title" style="padding:10px;margin-top:-20px;color:black">N{{ fee_payment.amount}}</h4>
+                                    <h4 class="card-title" style="padding:10px;color:black">The Sum of {{ amount_in_word|title }} {{ training_payment.currency|title }} Only.</h4>
+                                    <h4 class="card-title" style="padding:10px;margin-top:-20px;color:black">Being Payment For {{ training_payment.course|title }} Fee</h4>
+                                    <h4 class="card-title" style="padding:10px;margin-top:-20px;color:black">Cohort: {{ training_payment.cohort|title}}</h4>
+                                    <h4 class="card-title" style="padding:10px;margin-top:-20px;color:black">{{ training_payment.currency.symbol }}{{ training_payment.amount_paid}}</h4>
                                     <h4 class="card-title text-center" style="padding:10px;margin-top:20px;color:black">
                                         <br />
                                         <hr style="width:200px;border:2px solid black;margin:auto;color:black" />
-                                        {{ general_setting.name|title }}
+                                        {{ site_info.name|title }}
                                     </h4>
                                 </div>
                             </div>
@@ -269,7 +265,7 @@
 
 		doc.html(pdfjs, {
 			callback: function(doc) {
-				doc.save("{{fee_payment.student.surname|title}}-{{fee_payment.student.last_name|title}}-Receipt.pdf");
+				doc.save("{{training_payment.student.surname|title}}-{{training_payment.student.last_name|title}}-Receipt.pdf");
 			},
 			x: 12,
 			y: 12
@@ -287,7 +283,7 @@
 
 		doc.html(pdfjs, {
 			callback: function(doc) {
-				doc.save("{{fee_payment.student.surname|title}}-{{fee_payment.student.last_name|title}}-Receipt.pdf");
+				doc.save("{{training_payment.student.surname|title}}-{{training_payment.student.last_name|title}}-Receipt.pdf");
 			},
 			x: 12,
 			y: 12

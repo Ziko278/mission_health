@@ -9,12 +9,13 @@ from django.urls import reverse
 # from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from communication.models import RecentActivityModel
+from human_resource.models import StaffProfileModel
 from student.models import StudentsModel
 from admin_site.models import *
 from admin_site.forms import *
 
 
-class AdminDashboardView(TemplateView):
+class AdminDashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'admin_site/dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -208,3 +209,56 @@ class CountryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMess
 
     def get_success_url(self):
         return reverse('country_index')
+
+
+def admin_sign_in_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            intended_route = request.POST.get('next') or request.GET.get('next')
+            remember_me = request.POST.get('remember_me') or request.GET.get('remember_me')
+
+            if user.is_superuser:
+                login(request, user)
+                messages.success(request, 'welcome back {}'.format(user.username.title()))
+                if remember_me:
+                    request.session.set_expiry(3600 * 24 * 30)
+                else:
+                    request.session.set_expiry(0)
+                if intended_route:
+                    return redirect(intended_route)
+                return redirect(reverse('admin_dashboard'))
+            try:
+                user_role = StaffProfileModel.objects.get(user=user)
+            except StaffProfileModel.DoesNotExist:
+                messages.error(request, 'Unknown Identity, Access Denied')
+                return redirect(reverse('admin_login'))
+
+            if user_role.staff:
+                login(request, user)
+                messages.success(request, 'welcome back {}'.format(user_role.staff))
+                if remember_me:
+                    request.session.set_expiry(3600 * 24 * 30)
+                else:
+                    request.session.set_expiry(0)
+                if intended_route:
+                    return redirect(intended_route)
+                return redirect(reverse('admin_dashboard'))
+            else:
+                messages.error(request, 'Unknown Identity, Access Denied')
+                return redirect(reverse('login'))
+        else:
+            messages.error(request, 'Invalid Credentials')
+            return redirect(reverse('admin_login'))
+
+    return render(request, 'admin_site/sign_in.html')
+
+
+def admin_sign_out_view(request):
+    logout(request)
+    return redirect(reverse('admin_login'))
+
+

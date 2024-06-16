@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -29,7 +31,8 @@ class FinanceSettingModel(models.Model):
     default_currency = models.ForeignKey(CurrencyModel, on_delete=models.SET_NULL, null=True)
     auto_confirm_online_payment = models.BooleanField(blank=True, default=True)
     allow_part_payment = models.BooleanField(blank=True, default=True)
-    current_minimum_payment = models.FloatField(default=100)
+    minimum_payment = models.FloatField(default=10)
+    current_access_payment = models.FloatField(default=50)
 
 
 class BankAccountModel(models.Model):
@@ -85,11 +88,6 @@ class PaymentIDGeneratorModel(models.Model):
     )
     status = models.CharField(max_length=10, choices=STATUS, blank=True, default='f')
 
-    TYPE = (
-        ('pri', 'PRIMARY'), ('sec', 'SECONDARY')
-    )
-    type = models.CharField(max_length=10, choices=TYPE, blank=True)
-
 
 class TrainingPaymentModel(models.Model):
     course = models.ForeignKey(CourseModel, on_delete=models.SET_NULL, null=True, blank=True)
@@ -119,6 +117,8 @@ class TrainingPaymentModel(models.Model):
             enrollment = EnrollmentModel.objects.create(student=self.student, course=self.course,
                                                         cohort=self.student.cohort)
             enrollment.save()
+        if not self.payment_date:
+            self.payment_date = date.today()
         super(TrainingPaymentModel, self).save(*args, **kwargs)
 
     def generate_payment_id(self):

@@ -30,7 +30,7 @@ class FinanceSettingForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields:
-            if field != 'auto_confirm_online_payment':
+            if field != 'auto_confirm_online_payment' and field != 'allow_part_payment':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control',
                     'autocomplete': 'off'

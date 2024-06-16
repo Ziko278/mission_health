@@ -26,6 +26,21 @@
                                 <h1 class="card-title">{% if finance_setting.auto_confirm_online_payment %} YES {% else %} NO {% endif %}</h1>
                             </div>
 
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Auto Part Payment</label>
+                                <h1 class="card-title">{% if finance_setting.allow_part_payment %} YES {% else %} NO {% endif %}</h1>
+                            </div>
+
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Minimum Payable Fee</label>
+                                <h1 class="card-title">{{ finance_setting.minimum_payment }} %</h1>
+                            </div>
+
+                            <div class="col-sm-6 m-b30">
+                                <label class="form-label">Minimum Payment to Access Portal</label>
+                                <h1 class="card-title">{{ finance_setting.current_access_payment }}%</h1>
+                            </div>
+
                         </div>
                     </div>
 

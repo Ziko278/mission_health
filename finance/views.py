@@ -11,6 +11,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 # from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from num2words import num2words
+
 from communication.models import RecentActivityModel
 from finance.models import *
 from finance.forms import *
@@ -300,8 +302,10 @@ class TrainingPaymentCreateView(SuccessMessageMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['student'] = StudentsModel.objects.get(pk=self.kwargs.get('student_pk'))
+        student = StudentsModel.objects.get(pk=self.kwargs.get('student_pk'))
+        context['student'] = student
         context['course_list'] = CourseModel.objects.all().order_by('name')
+        context['payment_list'] = TrainingPaymentModel.objects.filter(student__id=student.id, cohort=student.cohort)
         return context
 
 
@@ -317,6 +321,7 @@ class TrainingPaymentListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['training_payment_list'] = TrainingPaymentModel.objects.all()
+        context['cohort_list'] = CohortModel.objects.all()
         context['form'] = TrainingPaymentForm
 
         return context
@@ -330,7 +335,7 @@ class TrainingPaymentDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['amount_in_word'] = num2words(self.object.amount)
+        context['amount_in_word'] = num2words(self.object.amount_paid)
         return context
 
 
@@ -366,7 +371,7 @@ class TrainingPaymentDeleteView(SuccessMessageMixin, DeleteView):
 
 
 class TrainingPaymentSelectStudentView(SuccessMessageMixin, TemplateView):
-    template_name = 'finance/fee_payment/select_student.html'
+    template_name = 'finance/training_payment/select_student.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
