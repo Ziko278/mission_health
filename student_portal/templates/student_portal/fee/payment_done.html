@@ -1,0 +1,21 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% block 'main' %}
+{% load humanize %}
+<section class="container">
+    <div class="card">
+        <div class="card-body">
+            <div class="" data-aos="fade-up" data-aos-delay="100">
+                <h4 class="card-title" style="font-family:courier"><b>Fee Payment Status </b></h4>
+                <div class="form-group">
+                    <h4 class="card-title {% if status == 'success' %} text-success {% elif status == 'error' %} text-danger {% endif %}" style="font-family:courier"><b>{{ message }}</b></h4>
+                    <a class="btn btn-outline-primary pt-3" href="{% url 'student_fee_dashboard' %}">Go to Fee Dashboard</a>
+                </div>
+            </div><!-- End Service Item -->
+
+
+        </div>
+    </div>
+</section><!-- End Featured Services Section -->
+
+{%endblock %}

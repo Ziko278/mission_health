@@ -19,12 +19,18 @@ class CurrencyModel(models.Model):
         ('active', 'ACTIVE'), ('inactive', 'INACTIVE')
     )
     status = models.CharField(max_length=10, choices=STATUS, default='active')
-    use_global = models.BooleanField(default=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     def __str__(self):
         return self.name.upper()
+
+    def is_default(self):
+        finance_setting = FinanceSettingModel.objects.first()
+        if finance_setting:
+            if finance_setting.default_currency.id == self.id:
+                return True
+        return False
 
 
 class FinanceSettingModel(models.Model):
@@ -37,6 +43,7 @@ class FinanceSettingModel(models.Model):
 
 class BankAccountModel(models.Model):
     currency = models.ForeignKey(CurrencyModel, on_delete=models.CASCADE)
+    country = models.ForeignKey(CountryModel, on_delete=models.SET_NULL, null=True, blank=True)
     bank_name = models.CharField(max_length=100)
     account_name = models.CharField(max_length=100)
     account_number = models.CharField(max_length=50)
@@ -45,11 +52,17 @@ class BankAccountModel(models.Model):
     def __str__(self):
         return "{} - {}".format(self.bank_name.title(), self.account_name.title())
 
+    def save(self, *args, **kwargs):
+        if not self.country:
+            self.country = self.currency.country
+        super(BankAccountModel, self).save(*args, **kwargs)
+
 
 class OnlinePaymentPlatformModel(models.Model):
     currency = models.ForeignKey(CurrencyModel, on_delete=models.CASCADE)
+    country = models.ForeignKey(CountryModel, on_delete=models.SET_NULL, null=True, blank=True)
     PLATFORM = (
-        ('paypal', 'PAYPAL'), ('paystack', 'PAYSTACK'), ('flutterwave', 'Flutterwave')
+        ('paypal', 'PAYPAL'), ('paystack', 'PAYSTACK')
     )
     platform = models.CharField(max_length=50, choices=PLATFORM)
     name = models.CharField(max_length=250)
@@ -72,6 +85,9 @@ class OnlinePaymentPlatformModel(models.Model):
         return self.name.upper()
 
     def save(self, *args, **kwargs):
+        if not self.country:
+            self.country = self.currency.country
+
         key = Fernet.generate_key().decode()
         fernet = Fernet(key)
         self.key = key
@@ -90,20 +106,26 @@ class PaymentIDGeneratorModel(models.Model):
 
 
 class TrainingPaymentModel(models.Model):
+    enrollment = models.ForeignKey(EnrollmentModel, on_delete=models.SET_NULL, null=True, blank=True)
     course = models.ForeignKey(CourseModel, on_delete=models.SET_NULL, null=True, blank=True)
     student = models.ForeignKey(StudentsModel, on_delete=models.SET_NULL, null=True, blank=True)
     cohort = models.ForeignKey(CohortModel, on_delete=models.SET_NULL, null=True, blank=True)
     amount_paid = models.FloatField()
     currency = models.ForeignKey(CurrencyModel, on_delete=models.CASCADE, related_name='currency')
     default_currency = models.ForeignKey(CurrencyModel, on_delete=models.SET_NULL, blank=True, null=True)
-    value_in_default_currency = models.FloatField(blank=True, null=True)
+    value_in_currency = models.FloatField(blank=True, null=True)
     PAYMENT_METHOD = (('online', 'ONLINE'), ('offline', 'OFFLINE'))
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD)
     payment_proof = models.FileField(blank=True, null=True, upload_to='finance/fee_payment')
     payment_date = models.DateField(blank=True, null=True)
     reference = models.CharField(max_length=100, blank=True, null=True)
+    platform_reference = models.CharField(max_length=100, blank=True, null=True)
     account = models.ForeignKey(BankAccountModel, on_delete=models.SET_NULL, blank=True, null=True)
-    currency_to_amount = models.FloatField(blank=True, null=True)
+
+    STATUS = (
+        ('pending', 'PENDING'), ('confirmed', 'CONFIRMED')
+    )
+    status = models.CharField(max_length=20, choices=STATUS, default='active', blank=True)
     updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
@@ -111,12 +133,15 @@ class TrainingPaymentModel(models.Model):
         if not self.reference:
             self.reference = self.generate_payment_id()
         self.cohort = self.student.cohort
-        try:
-            enrollment = EnrollmentModel.objects.get(student=self.student, course=self.course, status='active')
-        except ObjectDoesNotExist:
-            enrollment = EnrollmentModel.objects.create(student=self.student, course=self.course,
-                                                        cohort=self.student.cohort)
-            enrollment.save()
+        if not self.enrollment:
+            try:
+                enrollment = EnrollmentModel.objects.get(student=self.student, course=self.course, status='active')
+            except ObjectDoesNotExist:
+                enrollment = EnrollmentModel.objects.create(student=self.student, course=self.course,
+                                                            cohort=self.student.cohort)
+                enrollment.save()
+        if self.enrollment and not self.course:
+            self.course = self.enrollment.course
         if not self.payment_date:
             self.payment_date = date.today()
         super(TrainingPaymentModel, self).save(*args, **kwargs)

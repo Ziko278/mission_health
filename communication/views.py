@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin, messages
@@ -9,14 +11,76 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.core.mail import EmailMessage, send_mail, get_connection
+from django.core.mail import EmailMessage, send_mail, get_connection, EmailMultiAlternatives
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 from num2words import num2words
+from six import text_type
+
 from communication.models import *
 from communication.forms import *
+
+from django.core.mail import send_mail, EmailMessage
+from django.core.mail.backends.smtp import EmailBackend
+
+from django.core.mail import EmailMessage, get_connection
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+
+def send_custom_email(subject, recipient_list, email_id, template_name, context):
+    try:
+        email_setting = SMTPConfigurationModel.objects.get(pk=email_id)
+    except SMTPConfigurationModel.DoesNotExist:
+        raise ValueError("No email setting found")
+
+    # Set up email backend
+    email_backend = get_connection(
+        host=email_setting.host,
+        port=email_setting.port,
+        username=email_setting.email,
+        password=email_setting.password,
+        use_tls=email_setting.use_tls,
+    )
+
+    # Render HTML content from template
+    html_content = render_to_string(template_name, context)
+
+    # Create plain text version by stripping HTML tags
+    plain_content = strip_tags(html_content)
+
+    # Create email message with alternatives (HTML and plain text)
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=plain_content,
+        from_email=email_setting.email,
+        to=recipient_list,
+        connection=email_backend
+    )
+    email.attach_alternative(html_content, "text/html")
+
+    # Send the email
+    try:
+        mail_sent = email.send()
+    except Exception as e:
+        mail_sent = False
+        # Handle exceptions or logging here
+        print(f"Failed to send email: {str(e)}")
+
+    return mail_sent
+
+
+
+
+# Example usage
+# send_custom_email(
+#     subject='Test Email',
+#     message='This is a test email.',
+#     recipient_list=['recipient@example.com'],
+#     email_setting_name='Gmail Account'
+# )
 
 
 class SMTPConfigurationCreateView(SuccessMessageMixin, CreateView):
@@ -221,5 +285,38 @@ class CommunicationSettingUpdateView(LoginRequiredMixin, PermissionRequiredMixin
         context = super().get_context_data(**kwargs)
         context['communication_setting'] = self.object
         return context
-    
-    
+
+
+class TokenGenerator(PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp):
+        return text_type(user.pk) + text_type(timestamp) + text_type(user.is_active)
+
+
+account_activation_token = TokenGenerator()
+
+
+# def send_activation_mail(request, user, to_email):
+#     context = {
+#         'domain': get_current_site(request),
+#         'uid': urlsafe_base64_encode(str(user.pk).encode('utf-8')),
+#         'token': account_activation_token.make_token(user)
+#     }
+#
+#     mail_subject = 'U2ME Account Activation'
+#     from_email = settings.EMAIL_HOST_USER
+#     html_message = render_to_string('communication/account/verify_account.html', context)
+#     plain_message = strip_tags(html_message)
+#
+#     mail_sent = send_mail(mail_subject, plain_message, from_email, [to_email], html_message=html_message,
+#                           fail_silently=True)
+#     return mail_sent
+
+
+def send_test_email_view(request):
+    send_custom_email(
+        subject='Test Email',
+        message='This is a test email sent from a dynamic email setting.',
+        recipient_list=['recipient@example.com'],
+        email_setting_name='Gmail Account'
+    )
+    return HttpResponse("Test email sent successfully.")

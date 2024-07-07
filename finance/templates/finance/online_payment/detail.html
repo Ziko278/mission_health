@@ -56,11 +56,19 @@
                 <input type="hidden" name="user" value="{{ user.id }}" />
                 <div class="modal-body row">
                     <div class="form-floating col-md-6">
-                        <select name="name" class="form-control" required>
-                            <option value="paystack" {% if method.name == 'paystack' %} selected {% endif %}>PAYSTACK</option>
-                            <option value="flutterwave" {% if method.name == 'flutterwave' %} selected {% endif %}>FLUTTERWAVE</option>
-                        </select>
-                        <label for="floatingName">Payment Method <span style="color:red"><b>*</b></span></label>
+                        {{ form.currency }}
+                        <label for="floatingName">Currency <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-md-6">
+                        {{ form.platform }}
+                        <label for="floatingName">Platform <span style="color:red"><b>*</b></span></label>
+                    </div><br />
+
+                    <div class="form-floating col-md-6">
+                        {{ form.name }}
+                        <label for="floatingName">Payment Method Name <span style="color:red"><b>*</b></span></label>
                     </div><br />
 
                     <div class="form-floating col-md-6">
@@ -97,7 +105,7 @@
                     </div><br />
 
                     <div class="form-floating col-6">
-                        <input type="checkbox" name="use_global" {% if method.use_gloabal %} checked {% endif %}>
+                        {{ form.use_global }}
                         <label for="floatingName">Use Globally<span style="color:red"><b>*</b></span></label>
                         <br>
                     </div><br />

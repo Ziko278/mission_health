@@ -1,8 +1,12 @@
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.utils.http import urlsafe_base64_encode
+
+from communication.views import account_activation_token, send_custom_email
 from student.models import *
 from django.contrib.auth.models import User
-from communication.models import RecentActivityModel
+from communication.models import RecentActivityModel, CommunicationSettingModel
 
 
 @receiver(post_save, sender=StudentsModel)
@@ -15,6 +19,9 @@ def create_student_account(sender, instance, created, **kwargs):
         email = student.email
 
         user = User.objects.create_user(username=username, email=email, password=password)
+        if not student.user:
+            user.is_active = False
+            user.save()
         user_profile = StudentProfileModel.objects.create(user=user, student=student, default_password=password)
         user_profile.save()
 
@@ -24,11 +31,8 @@ def create_student_account(sender, instance, created, **kwargs):
         id_generator.status = 's'
         id_generator.save()
 
-
-@receiver(post_save, sender=StudentsModel)
-def create_registration_notification(sender, instance, created, **kwargs):
-    if created:
         category = 'student_registration'
-        subject = "<b>{}</b> just completed student registration".format(instance.__str__().title(),)
+        subject = "<b>{}</b> just completed student registration".format(instance.__str__().title(), )
         activity = RecentActivityModel.objects.create(category=category, subject=subject, reference_id=instance.id)
         activity.save()
+

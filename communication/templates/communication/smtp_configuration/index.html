@@ -44,6 +44,7 @@
                                     <span class="text-muted small pt-2 ps-1">Password: {{ '********' }}</span> <br />
                                     <span class="text-muted small pt-2 ps-1">Hostname: {{ method.host }}</span> <br />
                                     <span class="text-muted small pt-2 ps-1">Port: {{ method.port }}</span> <br />
+                                    <span class="text-muted small pt-2 ps-1">TLS: {{ method.use_tls }}</span> <br />
 
                                      <p><br />
                                         <button title="Edit Configuration" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
@@ -116,12 +117,6 @@
                     </div><br />
 
                     <div class="form-floating col-md-6">
-                        {{ form.username }}
-                        <label for="floatingName">Username <span style="color:red"><b>*</b></span></label>
-                        <br />
-                    </div><br />
-
-                    <div class="form-floating col-md-6">
                         {{ form.password }}
                         <label for="floatingName">Password <span style="color:red"><b>*</b></span></label>
                         <br />
@@ -137,6 +132,12 @@
                         {{ form.port }}
                         <label for="floatingName">Port Number <span style="color:red"><b>*</b></span></label>
                         <br />
+                    </div><br />
+
+                    <div class="form-floating col-md-6">
+                        {{ form.use_tls }}
+                        <label for="floatingName">Use TLS <span style="color:red"><b>*</b></span></label>
+                        <br>
                     </div><br />
 
                 </div>
@@ -193,12 +194,6 @@
                     </div><br />
 
                     <div class="form-floating col-md-6">
-                        <input type="text" name="username" class="form-control" required value="{{config.username}}">
-                        <label for="floatingName">Username <span style="color:red"><b>*</b></span></label>
-                        <br />
-                    </div><br />
-
-                    <div class="form-floating col-md-6">
                         <input type="password" name="password" class="form-control" required value="{{config.password}}">
                         <label for="floatingName">Password <span style="color:red"><b>*</b></span></label>
                         <br />
@@ -213,6 +208,12 @@
                     <div class="form-floating col-md-6">
                         <input type="number" name="port" class="form-control" required value="{{config.port}}">
                         <label for="floatingName">Port Number <span style="color:red"><b>*</b></span></label>
+                        <br />
+                    </div><br />
+                    
+                    <div class="form-floating col-md-6">
+                        <input type="checkbox" name="use_tls" {% if config.use_tls %} checked {% endif %}>
+                        <label for="floatingName">Use TLS <span style="color:red"><b></b></span></label>
                         <br />
                     </div><br />
 

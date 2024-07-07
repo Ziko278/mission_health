@@ -1,0 +1,83 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% load training_custom_filters %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card info-card sales-card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-calendar2-fill"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 class="fs-6"><span>Course: </span>{{ lesson.course|title }}</h6>
+                                    <h6>{{ lesson|title }}</h6>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="ps-3">
+                                    <h6><span>Progress Chart</span></h6>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Materials for {{ lesson|title }} </h5>
+            {% if not lesson.course|can_view_course:student.id %}
+            <h5 class="card-title text-danger">You have to pay your dues to access courses  </h5>
+            {% endif %}
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if lesson.materials.all %}
+                {% for material in lesson.materials.all %}
+                <tr>
+                    <th scope="row"><a href="#">{{ forloop.counter }} </a></th>
+                    <td title="{{lesson.description}}">{{ material.title|title }}</td>
+                    <td>
+                        {% if cohort.status|lower == '0' %} <span class="text-warning">Not Commenced</span>
+                        {% elif cohort.status|lower == '1' %} <span class="text-success">In Progress</span>
+                        {% elif cohort.status|lower == '2' %} <span class="text-danger">Concluded</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                        <a href="{% url 'student_lesson_material_detail' material.id %}" title="View Lesson Material" class="btn btn-outline-primary {% if not lesson.course|can_view_course:student.id %} disabled {% endif %}"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
+            {% if not lesson.materials.all %}
+                <h3 class="text-center">No Available Lesson Material at the moment</h3>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

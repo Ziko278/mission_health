@@ -22,27 +22,42 @@ class LessonModel(models.Model):
     course = models.ForeignKey(CourseModel, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=255)
     description = models.TextField()
+    order = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.title
 
+    class Meta:
+        ordering = ['course', 'order']
+
 
 class EnrollmentModel(models.Model):
     student = models.ForeignKey(StudentsModel, on_delete=models.CASCADE)
-    cohort = models.ForeignKey(CohortModel, on_delete=models.CASCADE)
+    cohort = models.ForeignKey(CohortModel, on_delete=models.CASCADE, blank=True, null=True)
     course = models.ForeignKey(CourseModel, on_delete=models.CASCADE)
+    amount = models.FloatField(default=0, blank=True)
     enrolled_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     STATUS = (
         ('active', 'ACTIVE'), ('inactive', 'INACTIVE')
     )
-    status = models.CharField(max_length=10, choices=STATUS, default='active')
+    status = models.CharField(max_length=10, choices=STATUS, blank=True, null=True, default='active')
+
+    def save(self, *args, **kwargs):
+
+        if not self.cohort:
+            self.cohort = self.student.cohort
+
+        if not self.amount or self.amount == 0:
+            self.amount = self.course.amount
+
+        super().save(*args, **kwargs)
 
 
 class LessonMaterialModel(models.Model):
-    lesson = models.ForeignKey(LessonModel, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(LessonModel, on_delete=models.CASCADE, related_name='materials')
     MATERIAL_TYPE = (('pdf', 'PDF'), ('video', 'VIDEO'), ('note', 'NOTE'))
     material_type = models.CharField(max_length=50, blank=True, null=True, choices=MATERIAL_TYPE)
     title = models.CharField(max_length=255)

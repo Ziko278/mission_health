@@ -7,7 +7,7 @@ class SMTPConfigurationForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields:
-            if field != 'is_general':
+            if field != 'is_general' and field != 'use_tls':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control',
                     'autocomplete': 'off'

@@ -214,8 +214,7 @@ class OnlinePaymentPlatformCreateView(LoginRequiredMixin, PermissionRequiredMixi
     template_name = 'finance/online_payment/index.html'
 
     def get_success_url(self):
-        return reverse('online_payment_index')
-        # return reverse('online_payment_detail', kwargs={'pk': self.object.pk})
+        return reverse('online_payment_detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -254,6 +253,7 @@ class OnlinePaymentPlatformDetailView(LoginRequiredMixin, PermissionRequiredMixi
         fernet = Fernet(key)
         context['public_key'] = fernet.decrypt(self.object.public_key.encode()).decode()
         context['private_key'] = fernet.decrypt(self.object.private_key.encode()).decode()
+        context['form'] = OnlinePaymentPlatformForm(instance=self.object)
         return context
 
 
@@ -265,8 +265,7 @@ class OnlinePaymentPlatformUpdateView(LoginRequiredMixin, PermissionRequiredMixi
     template_name = 'finance/online_payment/index.html'
 
     def get_success_url(self):
-        return reverse('online_payment_index')
-        # return reverse('fee_group_detail', kwargs={'pk': self.object.pk})
+        return reverse('online_payment_detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

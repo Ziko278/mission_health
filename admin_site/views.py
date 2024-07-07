@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -65,7 +66,7 @@ class SiteInfoDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        context['site_info'] = self.object
         return context
 
 
@@ -260,5 +261,3 @@ def admin_sign_in_view(request):
 def admin_sign_out_view(request):
     logout(request)
     return redirect(reverse('admin_login'))
-
-

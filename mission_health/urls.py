@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('home.urls')),
     path('myadmin/human-resource/', include('human_resource.urls')),
     path('myadmin/student/', include('student.urls')),
+    path('student/', include('student_portal.urls')),
     path('myadmin/training/', include('training.urls')),
     path('django-admin/', admin.site.urls),
 
@@ -20,5 +21,4 @@ urlpatterns = [
     # path('our-staff', StaffPageView.as_view(), name='our_staff'),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

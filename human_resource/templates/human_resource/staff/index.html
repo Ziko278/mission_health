@@ -22,7 +22,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Full Name</th>
                     <th scope="col">Staff ID</th>
-                    <th scope="col">Positions</th>
+                    <th scope="col">Position</th>
                     <th scope="col">Mobile</th>
                     <th scope="col">Action</th>
                 </tr>
@@ -31,10 +31,10 @@
                 {% if staff_list %}
                 {% for staff in staff_list %}
                 <tr>
-                    <th scope="row"><img class="rounded-circle" style="width:50px" {% if staff.image %} src="/media/{{ staff.image }}" {% else %} src="{% static 'admin_dashboard/images/default_image.jpg' %}" {% endif %} /> </th>
-                    <td>{{ staff.surname|title }} {% if staff.middle_name %} {{ staff.middle_name|title }} {% endif %} {{ staff.last_name|title }}</td>
+                    <th scope="row"><img class="rounded-circle" style="width:50px;height:50px" {% if staff.image %} src="{{ staff.image.url }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %} /> </th>
+                    <td>{{ staff|title }}</td>
                     <td>{{ staff.staff_id|upper }} </td>
-                    <td>{{ staff.position.name|title }} </td>
+                    <td>{{ staff.group.name|title }} </td>
                     <td>{% if staff.mobile %} {{ staff.mobile }} {% endif %}</td>
                     <td>
                         <a href="{% url 'staff_edit' staff.id %}" class="btn btn-warning"><i class="bi bi-pencil-square"></i></a>

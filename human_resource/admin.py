@@ -1,3 +1,5 @@
 from django.contrib import admin
+from human_resource.models import HRSettingModel
 
-# Register your models here.
+
+admin.site.register(HRSettingModel)

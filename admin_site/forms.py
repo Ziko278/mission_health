@@ -22,7 +22,8 @@ class SiteInfoForm(ModelForm):
         widgets = {
             'description': TextInput(attrs={
                 'style': 'height:50px'
-            })
+            }),
+
         }
 
 

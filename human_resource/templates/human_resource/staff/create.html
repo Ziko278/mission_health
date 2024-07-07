@@ -139,18 +139,15 @@
 
 
 </form>
-  <script src="{% static 'admin_dashboard/scripts/jquery.js' %}"></script>
+  <script src="{% static 'admin_site/scripts/jquery.js' %}"></script>
 <script>
 $(document).ready(function(){
-  $('#id_department').change(function(){
-    position = $('option:selected', this).attr('position')
-    $('#id_position').html(position)
-  })
-
-  $('#state').change(function(){
-    lga = $('option:selected', this).attr('lga')
-    $('#lga').html(lga)
-  })
+  $('form').submit(function(){
+  		$(this).submit(function(){
+  			return false
+  		})
+  		return true
+  	})
 })
 
 </script>

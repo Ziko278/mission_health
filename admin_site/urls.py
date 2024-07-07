@@ -2,6 +2,8 @@ from django.urls import path
 from admin_site.views import *
 
 urlpatterns = [
+
+
     path('', AdminDashboardView.as_view(), name='admin_dashboard'),
     path('login', admin_sign_in_view, name='admin_login'),
     path('logout', admin_sign_out_view, name='admin_logout'),

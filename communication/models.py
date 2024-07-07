@@ -16,10 +16,9 @@ class SMTPConfigurationModel(models.Model):
     email = models.EmailField()
     host = models.CharField(max_length=200)
     port = models.PositiveIntegerField()
-    username = models.CharField(max_length=200)
+    use_tls = models.BooleanField(default=True)
     password = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     staff = models.ForeignKey(StaffModel, on_delete=models.CASCADE, blank=True, null=True)
     is_general = models.BooleanField(default=False)
 
@@ -38,3 +37,6 @@ class MessageModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    def __str__(self):
+        return self.title.upper()

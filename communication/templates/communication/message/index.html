@@ -97,6 +97,7 @@
 {% for message in message_list %}
 <form method="POST" action="{% url 'message_edit' message.id %}">
     {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.id }}" />
     <div class="modal fade" id="edit{{ forloop.counter }}" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">

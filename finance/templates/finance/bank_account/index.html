@@ -31,7 +31,6 @@
                     <th scope="col">Bank Name</th>
                     <th scope="col">Account Number</th>
                     <th scope="col">Account Name</th>
-                    <th scope="col">Global</th>
                     <th scope="col" class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -46,7 +45,6 @@
                     <td>{{ account.bank_name|title }}</td>
                     <td>{{ account.account_number }}</td>
                     <td>{{ account.account_name|title }}</td>
-                    <td>{% if account.use_global %} <span class="text-success"><i class="bi bi-check2-all"></i></span> {% endif %}</td>
 
                     <td class="text-center">
                         <button type="button" title="Edit Bank Account" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
@@ -101,14 +99,6 @@
                         <br>
                     </div><br />
 
-
-                    <div class="form-floating col-6">
-                        {{ form.use_global }}
-                        <label for="floatingName">Use Globally<span style="color:red"><b>*</b></span></label>
-                        <br>
-                    </div><br />
-
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
@@ -157,12 +147,6 @@
                         <input type="text" name="account_name" value="{{ account.account_name|lower }}" autocomplete="off" required class="form-control">
                         <label for="floatingName">Account Name <span style="color:red"><b>*</b></span></label>
                     </div><br />
-
-                    <div class="form-floating col-6">
-                        <input type="checkbox" name="use_global" {% if account.use_global %} checked {% endif %}>
-                        <label for="floatingName">Use Globally <span style="color:red"><b>*</b></span></label>
-                        <br>
-                    </div>
 
                 </div>
                 <div class="modal-footer">

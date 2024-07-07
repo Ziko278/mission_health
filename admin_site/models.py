@@ -26,6 +26,9 @@ class SiteInfoModel(models.Model):
     linkedin_handle = models.URLField(max_length=100, null=True, blank=True)
     youtube_handle = models.URLField(max_length=100, null=True, blank=True)
 
+    primary_color = models.CharField(max_length=255)
+    secondary_color = models.CharField(max_length=255)
+
     def __str__(self):
         return self.short_name.upper()
 

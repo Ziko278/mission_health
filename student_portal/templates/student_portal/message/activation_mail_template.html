@@ -1,0 +1,34 @@
+{% extends 'communication/mail/layout.html' %}
+{% load static %}
+{% block 'main' %}
+<div id="hero" style="height:80px;background:#0e1d34" class=" d-flex align-items-center">
+
+</div>
+
+<section id="featured-services" class="featured-services">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up">
+                <div class="icon flex-shrink-0"><i class="fa-solid fa-person"></i></div>
+                <div>
+                    <h4 class="title">Successful Account Registration</h4>
+                    <p class="description" style="text-align:justify">Thank you for signing up to {{ site_info.name|title }}.
+                        The best nurse training platform. Please Activate your account by clicking the link below. </p>
+                    <a href="http://{{domain}}{% url 'activate_account' uidb64=uid token=token %}">Activate my {{ site_info.name|title }} Account</a>
+                    <h4 class="title"><b>username: {{ username }}</b></h4>
+                    <h4 class="title"><b>password: {{ password }}</b></h4>
+                    <p>You are adviced to change your default password for enhanced security and data protection</p>
+                    <p class="description" style="text-align:justify">This mail was sent because you signed up for {{ site_info.name|title }} exchange. if you did not do this , please ignore this message .</p>
+                    <p class="description" style="text-align:justify">For more information, you call reach us at <br />
+                        <a href="tel:{{ site_info.mobile_1 }}"><i class="fa-solid fa-phone"></i> {{ site_info.mobile_1 }}</a>  <br />
+                        <a href="{{ site_info.email|lower }}"><i class="fa-solid fa-message"></i> {{ site_info.email|lower }}</a>  <br />
+                    </p>
+                </div>
+            </div>
+            <!-- End Service Item -->
+
+        </div>
+    </div>
+</section><!-- End Featured Services Section -->
+
+{%endblock %}

@@ -55,9 +55,26 @@ class StaffModel(models.Model):
             if self.id:
                 self.update_user_profile()
 
+            if self.status.lower() != 'active':
+                try:
+                    user = StaffProfileModel.objects.get(staff=self).user
+                    user.is_active = False
+                    user.save()
+                except Exception:
+                    pass
+            else:
+                try:
+                    user = StaffProfileModel.objects.get(staff=self).user
+                    if not user.is_active:
+                        user.is_active = False
+                        user.save()
+                except Exception:
+                    pass
+
         super(StaffModel, self).save(*args, **kwargs)
 
     def generate_staff_id(self, staff_setting):
+
         last_staff = StaffIDGeneratorModel.objects.filter(status='s').last()
         if last_staff:
             staff_id = str(int(last_staff.last_id) + 1)
@@ -65,7 +82,7 @@ class StaffModel(models.Model):
             staff_id = str(1)
         while True:
             gen_id = staff_id
-            staff_id = staff_setting.staff_id_prefix + staff_id.rjust(4, '0')
+            staff_id = staff_setting.staff_id_prefix + '-' + staff_id.rjust(4, '0')
             staff_exist = StaffModel.objects.filter(staff_id=staff_id).first()
             if not staff_exist:
                 break

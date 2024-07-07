@@ -31,7 +31,6 @@
                     <th scope="col">Symbol</th>
                     <th scope="col">Country</th>
                     <th scope="col">Exchange Rate</th>
-                    <th scope="col">Global</th>
                     <th scope="col">Default</th>
                     <th scope="col">Status</th>
                     <th scope="col" class="text-center">Action</th>
@@ -48,8 +47,7 @@
                     <td>{{ currency.symbol }}</td>
                     <td>{{ currency.country|title }}</td>
                     <td>{{ currency.exchange_rate|floatformat|intcomma }}</td>
-                    <td>{% if currency.use_global %} <span class="text-success"><i class="bi bi-check2-all"></i></span> {% endif %}</td>
-                    <td>{{ currency.end_date|date }}</td>
+                    <td> {% if currency.is_default %} <span class="text-success"><i class="bi bi-check2-all"></i></span> {% endif %}</td>
                     <td>
                         {% if currency.status|lower == 'active' %} <span class="text-success">Active</span>
                         {% elif currency.status|lower == 'inactive' %} <span class="text-danger">Inactive</span>
@@ -117,13 +115,6 @@
                         <br>
                     </div><br />
 
-                    <div class="form-floating col-6">
-                        {{ form.use_global }}
-                        <label for="floatingName">Use Globally<span style="color:red"><b>*</b></span></label>
-                        <br>
-                    </div><br />
-
-
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
@@ -181,12 +172,6 @@
                             <option value="inactive" {% if currency.status|lower == 'inactive' %} selected {% endif %}>Inactive</option>
                         </select>
                         <label for="floatingName">Status <span style="color:red"><b>*</b></span></label>
-                        <br>
-                    </div>
-
-                    <div class="form-floating col-6">
-                        <input type="checkbox" name="use_global" {% if currency.use_global %} checked {% endif %}>
-                        <label for="floatingName">Use Globally <span style="color:red"><b>*</b></span></label>
                         <br>
                     </div>
 

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'home',
     'human_resource',
     'student',
+    'student_portal',
     'training'
 ]
 

@@ -21,7 +21,6 @@ class CohortModel(models.Model):
 class StudentsModel(models.Model):
     """"""
     surname = models.CharField(max_length=50)
-    middle_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50)
     registration_number = models.CharField(max_length=50, blank=True, null=True)
     GENDER = (
@@ -43,10 +42,7 @@ class StudentsModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     def __str__(self):
-        if self.middle_name:
-            return f'{self.surname} {self.middle_name} {self.last_name}'
-        else:
-            return f'{self.surname} {self.last_name}'
+        return f'{self.surname} {self.last_name}'
 
     def save(self, *args, **kwargs):
 
@@ -59,7 +55,7 @@ class StudentsModel(models.Model):
                 student_id = str(1)
             while True:
                 gen_id = student_id
-                student_id = cohort.cohort_id + '/' + student_id.rjust(4, '0')
+                student_id = cohort.cohort_id + '-' + student_id.rjust(4, '0')
                 student_exist = StudentsModel.objects.filter(registration_number=student_id).first()
                 if not student_exist:
                     break
