@@ -76,3 +76,26 @@ class LessonMaterialForm(ModelForm):
         widgets = {
 
         }
+
+
+class LiveSessionForm(ModelForm):
+    """"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control',
+                'autocomplete': 'off'
+            })
+
+    class Meta:
+        model = LiveSessionModel
+        fields = '__all__'
+        widgets = {
+            'session_date': TextInput(attrs={
+                'type': 'date'
+            }),
+            'session_time': TextInput(attrs={
+                'type': 'time'
+            }),
+        }

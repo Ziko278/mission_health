@@ -32,7 +32,7 @@
                     {% if student_list %}
                     {% for student in student_list %}
                         <tr>
-                            <td> <img class="rounded-circle" style="width:50px;height:50px" {% if student.image %} src="/media/{{ student.image }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %}/>
+                            <td> <img class="rounded-circle" style="width:50px;height:50px" {% if student.image %} src="{{ student.image.url }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %}/>
                             <td> {{ student|title }}  </td>
                             <td class="text-center">  {{ student.registration_number|upper }}</td>
                             <th class="text-center">{{ student.country|upper }} </th>

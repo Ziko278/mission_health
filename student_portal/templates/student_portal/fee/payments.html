@@ -1,0 +1,42 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body pt-3" style="overflow-x:auto">
+                <h5 class="card-title">Fee Payments</h5>
+                <table class="table table-responsive table-bordered " style="font-size:14px">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="min-width:150px">Course</th>
+                            <th scope="col">Amount Paid</th>
+                            <th scope="col" style="min-width:130px">Date</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" style="" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payment_list %}
+                            <tr>
+                                <td scope="row">{{ payment.course|title }}</td>
+                                <td scope="row">{{ payment.currency.symbol }}{{ payment.amount_paid|intcomma }}</td>
+                                <td scope="row">{{ payment.payment_date|date }}</td>
+                                <td scope="row">{{ payment.payment_method|title }}</td>
+                                <td scope="row" {% if payment.status == 'pending' %} class='text-warning' {% else %} class='text-success' {% endif %}>{{ payment.status|title }}</td>
+                                <td scope="row" class="text-center">
+                                    <a title="View Fee Payment Detail" style="font-size:12px" class="btn btn-primary" href="{% url 'student_payment_detail' payment.id %}"><i class="bi bi-eye"></i> </a>
+                                 </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock %}

@@ -1,13 +1,17 @@
 import hashlib
 import json
+import re
 import uuid
 
 from cryptography.fernet import Fernet
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail, BadHeaderError
+from django.db.models import Sum, Q
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -24,25 +28,27 @@ import hmac
 from datetime import datetime, timedelta
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse, JsonResponse, Http404
-from django.utils.encoding import force_str
+from django.utils.encoding import force_str, force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.messages.views import SuccessMessageMixin, messages
 from django.urls import reverse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from num2words import num2words
 
 from admin_site.models import CountryModel, SiteInfoModel
-from communication.models import CommunicationSettingModel
+from communication.forms import StudentMessageForm
+from communication.models import CommunicationSettingModel, StudentMessageModel
 from communication.views import account_activation_token, send_custom_email
 from finance.models import FinanceSettingModel, TrainingPaymentModel, BankAccountModel, OnlinePaymentPlatformModel, \
     CurrencyModel
-from student.forms import StudentForm
+from student.forms import StudentForm, StudentProfileForm
 from student.models import CohortModel, StudentProfileModel, StudentsModel
 from student_portal.forms import SignUpForm, LoginForm
 from training.forms import EnrollmentForm
-from training.models import EnrollmentModel, CourseModel, LessonModel, LessonMaterialModel
+from training.models import EnrollmentModel, CourseModel, LessonModel, LessonMaterialModel, ProgressModel, \
+    LiveSessionModel
 
 
 def student_signup_view(request):
@@ -190,7 +196,37 @@ class StudentDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        student = StudentProfileModel.objects.get(user=self.request.user).student
+        context['student'] = student
+        context['enrollment_list'] = EnrollmentModel.objects.filter(student=student, cohort=student.cohort)
+        return context
 
+
+class StudentProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'student_portal/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        student = StudentProfileModel.objects.get(user=self.request.user).student
+        context['student'] = student
+        context['form'] = StudentProfileForm(instance=student)
+        return context
+
+
+class StudentProfileChangeView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = StudentsModel
+    template_name = 'student_portal/profile.html'
+    form_class = StudentProfileForm
+    success_message = 'Profile Successfully Updated'
+
+    def get_success_url(self):
+        return reverse('student_profile')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        student = StudentProfileModel.objects.get(user=self.request.user).student
+        context['student'] = student
+        context['form'] = StudentProfileForm(instance=student)
         return context
 
 
@@ -201,6 +237,7 @@ class StudentCourseDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         student = StudentProfileModel.objects.get(user=self.request.user).student
         context['enrollment_list'] = EnrollmentModel.objects.filter(student=student, status='active')
+        context['student'] = student
         return context
 
 
@@ -213,6 +250,7 @@ class StudentEnrollDashboardView(LoginRequiredMixin, TemplateView):
         context['course_list'] = CourseModel.objects.all()
         context['default_currency'] = FinanceSettingModel.objects.first().default_currency.symbol
         context['active_course_list'] = [enrollment.id for enrollment in EnrollmentModel.objects.filter(status='active', student=student)]
+        context['student'] = student
         return context
 
 
@@ -363,7 +401,7 @@ class StudentSelectPaymentMethodView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class PayWithPaystackView(TemplateView):
+class PayWithPaystackView(LoginRequiredMixin, TemplateView):
     template_name = 'student_portal/fee/pay_with_paystack.html'
 
     def dispatch(self, *args, **kwargs):
@@ -618,3 +656,198 @@ def paypal_payment_done(request):
         'message': message
     }
     return render(request, 'student_portal/fee/payment_done.html', context)
+
+
+class StudentPaymentListView(LoginRequiredMixin, ListView):
+    model = TrainingPaymentModel
+    template_name = 'student_portal/fee/payments.html'
+    context_object_name = 'payment_list'
+
+    def get_queryset(self):
+        student = StudentProfileModel.objects.get(user=self.request.user).student
+        return TrainingPaymentModel.objects.filter(cohort=student.cohort, student=student)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
+class StudentPaymentDetailView(DetailView):
+    model = TrainingPaymentModel
+    fields = '__all__'
+    template_name = 'student_portal/fee/detail.html'
+    context_object_name = "training_payment"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['amount_in_word'] = num2words(self.object.amount_paid)
+        return context
+
+
+@login_required
+def student_change_password_view(request):
+    if request.method == 'POST':
+        current_password = request.POST['current_password']
+        new_password1 = request.POST['new_password1']
+        new_password2 = request.POST['new_password2']
+
+        # Verify the current password
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Incorrect current password.')
+            return redirect(reverse('student_change_password'))
+
+        # Check if the new passwords match
+        if len(new_password1) < 8:
+            messages.error(request, 'Password must have at least 8 characters.')
+            return redirect(reverse('student_change_password'))
+
+        if not re.match("^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$", new_password1):
+            messages.error(request, 'Password must contain both letters and numbers.')
+            return redirect(reverse('student_change_password'))
+
+        if new_password1 != new_password2:
+            messages.error(request, 'New passwords do not match.')
+            return redirect(reverse('student_change_password'))
+
+        # Update the user's password
+        user = request.user
+        user.set_password(new_password1)
+        user.save()
+
+        # Update the user's session with the new password
+        update_session_auth_hash(request, user)
+
+        logout(request)
+
+        messages.success(request, 'Password successfully changed. Please log in with the new password.')
+        return redirect('student_login')
+
+    return render(request, 'student_portal/change_password.html')
+
+
+def password_reset_request(request):
+    if request.method == "POST":
+        password_reset_form = PasswordResetForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_user = User.objects.filter(email=data).first()
+            if associated_user:
+                subject = "Password Reset Requested"
+                email_template_name = "password_reset_email.html"
+                context = {
+                    "email": associated_user.email,
+                    'domain': get_current_site(request).domain,
+                    'site_name': 'Your site',
+                    "uid": urlsafe_base64_encode(force_bytes(associated_user.pk)),
+                    "user": associated_user,
+                    'token': default_token_generator.make_token(associated_user),
+                    'protocol': 'http',
+                }
+                email = render_to_string(email_template_name, context)
+                try:
+                    send_mail(subject, email, 'your-email@gmail.com', [associated_user.email], fail_silently=False)
+                except BadHeaderError:
+                    messages.error(request, 'An Error has Occured, Try Later')
+                    return redirect("password_reset")
+                return redirect("password_reset_done")
+    password_reset_form = PasswordResetForm()
+    return render(request, "student_portal/password_reset.html", {"password_reset_form": password_reset_form})
+
+
+def password_reset_confirm(request, uidb64=None, token=None):
+    logout(request)
+    if request.method == 'POST':
+        form = SetPasswordForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('password_reset_complete')
+    else:
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            form = SetPasswordForm(user=user)
+        else:
+            return HttpResponse('Password reset link is invalid.')
+
+    return render(request, 'password_reset_confirm.html', {'form': form})
+
+
+@login_required
+def mark_lesson_material_completed(request, pk):
+    if request.method == 'POST':
+        material = get_object_or_404(LessonMaterialModel, pk=pk)
+        lesson = material.lesson
+        student = StudentProfileModel.objects.get(user=request.user).student
+        progress = ProgressModel.objects.filter(student=student, cohort=student.cohort).first()
+        if not progress:
+            progress = ProgressModel.objects.create(student=student, cohort=student.cohort, progress={})
+            progress.save()
+        progress_data = progress.progress
+        if str(lesson.id) in progress_data:
+            if material.id not in progress_data[str(lesson.id)]:
+                progress_data[str(lesson.id)].append(material.id)
+        else:
+            progress_data[str(lesson.id)] = [material.id]
+        progress.save()
+        messages.success(request, 'Material marked as completed')
+        return redirect(request.META.get('HTTP_REFERER', reverse('student_lesson_detail', kwargs={'pk': lesson.id})))
+    messages.error(request, 'Invalid Request')
+    return redirect(request.META.get('HTTP_REFERER', reverse('student_dashboard')))
+
+
+class StudentMessageCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = StudentMessageModel
+    form_class = StudentMessageForm
+    success_message = 'Message Sent! We will get back to you soon'
+    template_name = 'student_portal/message/create.html'
+
+    def get_success_url(self):
+        return reverse('student_message_index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class StudentMessageListView(LoginRequiredMixin, SuccessMessageMixin, ListView):
+    model = StudentMessageModel
+    template_name = 'student_portal/message/index.html'
+    context_object_name = "message_list"
+
+    def get_queryset(self):
+        student = StudentProfileModel.objects.get(user=self.request.user).student
+        return StudentMessageModel.objects.filter(Q(from_student=student) | Q(to_student=student)).order_by('created_at').reverse()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
+class StudentMessageDetailView(LoginRequiredMixin, SuccessMessageMixin, DetailView):
+    model = StudentMessageModel
+    template_name = 'student_portal/message/detail.html'
+    context_object_name = "message"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
+class StudentLiveClassView(LoginRequiredMixin, SuccessMessageMixin, ListView):
+    model = LiveSessionModel
+    template_name = 'student_portal/course/live_class.html'
+    context_object_name = "live_class_list"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+

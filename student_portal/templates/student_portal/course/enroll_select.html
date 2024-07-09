@@ -4,9 +4,10 @@
 {% block 'main' %}
 <section class="section dashboard">
     <div class="row">
-        <h1 class="card-title px-4">Available Courses to Enroll</h1>
-        {% if course_list %}
+        <h1 class="card-title px-4">Available Courses to Enroll {{ student }}</h1>
+        {% if course_list and student.my_course_list|length < course_list|length %}
             {% for course in course_list %}
+            {% if course.id not in student.my_course_list %}
             <div class="col-12">
                 <div class="card info-card sales-card">
                     <div class="card-body">
@@ -26,6 +27,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
             {% endfor %}
         {% else %}
             <div class="col-12">
@@ -36,7 +38,7 @@
                                 <i class="bi bi-x text-danger"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>There are no available course to register at the moment</h6>
+                                <h6 class="fs-4">There are no available course to register at the moment</h6>
                                 <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary mt-3">Dashboard</a>
                             </div>
                         </div>

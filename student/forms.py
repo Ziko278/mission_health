@@ -47,4 +47,22 @@ class StudentForm(ModelForm):
         }
 
 
+class StudentProfileForm(ModelForm):
+    """"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control',
+                'autocomplete': 'off'
+            })
+
+    class Meta:
+        model = StudentsModel
+        fields = ['surname', 'last_name', 'gender', 'mobile', 'image']
+        widgets = {
+
+        }
+
+
 

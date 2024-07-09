@@ -20,5 +20,10 @@ urlpatterns = [
     path('lesson/material/<int:pk>/edit', LessonMaterialUpdateView.as_view(), name='lesson_material_edit'),
     path('lesson/material/<int:pk>/delete', LessonMaterialDeleteView.as_view(), name='lesson_material_delete'),
 
+    path('live-session/create', LiveSessionCreateView.as_view(), name='live_session_create'),
+    path('live-session/index', LiveSessionListView.as_view(), name='live_session_index'),
+    path('live-session/<int:pk>/detail', LiveSessionDetailView.as_view(), name='live_session_detail'),
+    path('live-session/<int:pk>/edit', LiveSessionUpdateView.as_view(), name='live_session_edit'),
+    path('live-session/<int:pk>/delete', LiveSessionDeleteView.as_view(), name='live_session_delete'),
 ]
 

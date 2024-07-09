@@ -171,6 +171,7 @@ class BankAccountListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = BankAccountForm
+        context['country_list'] = CountryModel.objects.filter(status='active').order_by(Lower('name'))
         context['currency_list'] = CurrencyModel.objects.filter(status='active').order_by(Lower('name'))
         return context
 

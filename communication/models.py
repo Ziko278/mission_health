@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from human_resource.models import StaffModel
+from student.models import StudentsModel
 
 
 class RecentActivityModel(models.Model):
@@ -40,3 +41,17 @@ class MessageModel(models.Model):
 
     def __str__(self):
         return self.title.upper()
+
+
+class StudentMessageModel(models.Model):
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    from_student = models.ForeignKey(StudentsModel, on_delete=models.SET_NULL, null=True, blank=True, related_name='from_student')
+    to_student = models.ForeignKey(StudentsModel, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    def __str__(self):
+        return self.title.upper()
+

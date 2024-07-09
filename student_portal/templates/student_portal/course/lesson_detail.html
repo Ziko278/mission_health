@@ -11,12 +11,18 @@
                     <div class="row">
                         <div class="col-md-8">
                             <div class="d-flex align-items-center pt-3">
-                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-calendar2-fill"></i>
-                                </div>
                                 <div class="ps-3">
-                                    <h6 class="fs-6"><span>Course: </span>{{ lesson.course|title }}</h6>
-                                    <h6>{{ lesson|title }}</h6>
+                                    <h6 class="fs-4">
+                                        <span class="fs-6">Course:</span>
+                                        <br>
+                                        {{ lesson.course|title }}
+                                    </h6>
+                                    <br>
+                                    <h6 class="fs-4">
+                                        <span class="fs-6">Lesson:</span>
+                                        <br>
+                                        {{ lesson|title }}
+                                    </h6>
 
                                 </div>
                             </div>
@@ -25,7 +31,31 @@
                         <div class="col-md-4">
                             <div class="d-flex align-items-center pt-3">
                                 <div class="ps-3">
-                                    <h6><span>Progress Chart</span></h6>
+                                    {% if lesson|lesson_progress_percent:student.id > 0 %}
+                                     <canvas id="pieChart" style="height: 100px;"></canvas>
+                                    <h1 class="card-title">Lesson Progress</h1>
+                                    {% endif %}
+                                  <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                      new Chart(document.querySelector('#pieChart'), {
+                                        type: 'pie',
+                                        data: {
+
+                                          datasets: [{
+                                            label: 'My First Dataset',
+                                            data: [{{lesson|lesson_progress_percent:student.id}}, {{lesson|lesson_progress_percent_left:student.id}}],
+                                            backgroundColor: [
+                                              'rgb(75, 192, 192)',
+                                              'rgb(255, 255, 255)',
+
+                                            ],
+                                            hoverOffset: 4
+                                          }]
+                                        }
+                                      });
+                                    });
+                                  </script>
+
 
                                 </div>
                             </div>
@@ -38,18 +68,18 @@
 
     </div>
     <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">Materials for {{ lesson|title }} </h5>
+        <div class="card-body" style="overflow-x:auto">
+            <h5 class="card-title">Course Materials </h5>
             {% if not lesson.course|can_view_course:student.id %}
             <h5 class="card-title text-danger">You have to pay your dues to access courses  </h5>
             {% endif %}
-            <table class="table table-bordered">
+            <table class="table table-bordered table-responsive">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Title</th>
+                    <th scope="col" style="min-width:300px">Title</th>
                     <th scope="col">Status</th>
-                    <th scope="col" class="text-center">Action</th>
+                    <th scope="col" style="min-width:120px" class="text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -58,15 +88,12 @@
                 <tr>
                     <th scope="row"><a href="#">{{ forloop.counter }} </a></th>
                     <td title="{{lesson.description}}">{{ material.title|title }}</td>
-                    <td>
-                        {% if cohort.status|lower == '0' %} <span class="text-warning">Not Commenced</span>
-                        {% elif cohort.status|lower == '1' %} <span class="text-success">In Progress</span>
-                        {% elif cohort.status|lower == '2' %} <span class="text-danger">Concluded</span>
-                        {% endif %}
-                    </td>
+                    <td class="text-center">{% if material|lesson_material_progress:student.id %} <i class="text-success fs-3 bi bi-check"></i> {% endif %}</td>
 
                     <td class="text-center">
                         <a href="{% url 'student_lesson_material_detail' material.id %}" title="View Lesson Material" class="btn btn-outline-primary {% if not lesson.course|can_view_course:student.id %} disabled {% endif %}"><i class="bi bi-eye"></i></a>
+                        <button type="button" class="btn btn-success" {% if material|lesson_material_progress:student.id %} disabled {% endif %} data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}" title="Mark Material as Completed"><i class="bi bi-check"></i></button>
+
                     </td>
                 </tr>
                 {% endfor %}
@@ -80,4 +107,30 @@
         </div>
     </div>
 </section>
+
+{% for material in lesson.materials.all %}
+<form method="POST" action="{% url 'lesson_material_completed' material.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal fade" id="edit{{ forloop.counter }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mark Material completed</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h1 class="card-title">
+                        You rae about to mark <b><i>{{ material|title }}</i></b> as completed
+                    </h1>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endfor %}
+
 {% endblock %}

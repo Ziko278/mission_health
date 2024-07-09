@@ -1,0 +1,106 @@
+{% extends 'admin_site/layout.html' %}
+{% load static %}
+{% block 'main' %}
+<div class="card">
+    <div class="card-body ">
+        <h5 class="card-title">Actions</h5>
+        <a title="Add Lesson Note" class="btn btn-outline-primary" href="{% url 'lesson_material_note_create' lesson.id %}"><i class="bi bi-book-half"></i></a>
+        <a title="Upload Lesson Document" class="btn btn-outline-primary" href="{% url 'lesson_material_create' lesson.id %}"><i class="bi bi-upload"></i></a>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body pt-3">
+                <ul class="nav nav-tabs nav-tabs-bordered">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Lesson Detail</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Lesson Materials</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content pt-2">
+                    <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                        <br>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="ri-contacts-book-2-fill"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ lesson.title|title }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Title</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="ri-code-box-line"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ lesson.course|title }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Course</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                        <div class="row">
+                            <div class="card-body">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Introduction</th>
+                                            <th scope="col">Type</th>
+                                            <th class="text-center" scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if material_list %}
+                                        {% for material in material_list %}
+                                            <tr>
+                                                <th scope="row">{{ forloop.counter }}</th>
+                                                <td>{{ material.title|title }}</td>
+                                                <td>{{ material.introduction }}</td>
+                                                <td>{{ material.material_type|upper }}</td>
+                                                <td class="text-center"><a class="btn btn-primary" href="{% url 'lesson_material_detail' material.id %}"><i class="bi bi-eye"></i></a></td>
+                                            </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                            <tr><td colspan="5"><h3 class="text-center">No Material Added </h3></td></tr>
+                                        {% endif %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{%endblock %}

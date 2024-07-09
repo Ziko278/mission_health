@@ -1,3 +1,7 @@
+from datetime import datetime, timedelta
+
+import requests
+from django.conf import settings
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, DetailView, ListView
@@ -81,7 +85,7 @@ class LessonCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessa
     model = LessonModel
     permission_required = 'training.add_lessonmodel'
     form_class = LessonForm
-    template_name = 'training/lesson/create.html'
+    template_name = 'training/lesson/index.html'
     success_message = 'Lesson Successfully Added'
 
     def get_success_url(self):
@@ -237,3 +241,95 @@ class LessonMaterialDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Succ
     def get_success_url(self):
         return reverse('lesson_material_index')
 
+
+class LiveSessionCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    model = LiveSessionModel
+    permission_required = 'training.add_livesessionmodel'
+    form_class = LiveSessionForm
+    template_name = 'training/live_session/index.html'
+    success_message = 'Live Session Successfully Added'
+
+    def get_success_url(self):
+        return reverse('live_session_detail', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course_list'] = CourseModel.objects.all().order_by('name')
+
+        return context
+
+
+class LiveSessionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    model = LiveSessionModel
+    permission_required = 'training.view_livesessionmodel'
+    fields = '__all__'
+    template_name = 'training/live_session/index.html'
+    context_object_name = "Live Session_list"
+
+    def get_queryset(self):
+        return LiveSessionModel.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = LiveSessionForm
+        context['course_list'] = CourseModel.objects.all().order_by('name')
+
+        return context
+
+
+class LiveSessionDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    model = LiveSessionModel
+    permission_required = 'training.view_livesessionmodel'
+    fields = '__all__'
+    template_name = 'training/live_session/detail.html'
+    context_object_name = "live_session"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class LiveSessionUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = LiveSessionModel
+    permission_required = 'training.change_livesessionmodel'
+    form_class = LiveSessionForm
+    template_name = 'training/live_session/index.html'
+    success_message = 'Live Session Successfully Updated'
+
+    def get_success_url(self):
+        return reverse('live_session_detail', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class LiveSessionDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = LiveSessionModel
+    permission_required = 'training.delete_livesessionmodel'
+    fields = '__all__'
+    template_name = 'training/live_session/delete.html'
+    context_object_name = "live_session"
+    success_message = 'Live Session Successfully Deleted'
+
+    def get_success_url(self):
+        return reverse('live_session_index')
+
+
+def get_zoom_access_token():
+    url = "https://zoom.us/oauth/token"
+    headers = {
+        'Authorization': f'Basic {settings.ZOOM_CLIENT_ID}:{settings.ZOOM_CLIENT_SECRET}',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    data = {
+        'grant_type': 'client_credentials'
+    }
+    response = requests.post(url, headers=headers, data=data)
+    response_data = response.json()
+
+    access_token = response_data['access_token']
+    expires_in = response_data['expires_in']
+    expires_at = datetime.now() + timedelta(seconds=expires_in)
+
+    return access_token

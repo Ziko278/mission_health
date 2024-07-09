@@ -7,6 +7,7 @@ from communication.views import account_activation_token, send_custom_email
 from student.models import *
 from django.contrib.auth.models import User
 from communication.models import RecentActivityModel, CommunicationSettingModel
+from training.models import ProgressModel
 
 
 @receiver(post_save, sender=StudentsModel)
@@ -35,4 +36,7 @@ def create_student_account(sender, instance, created, **kwargs):
         subject = "<b>{}</b> just completed student registration".format(instance.__str__().title(), )
         activity = RecentActivityModel.objects.create(category=category, subject=subject, reference_id=instance.id)
         activity.save()
+
+        progress = ProgressModel.objects.create(student=student, cohort=student.cohort)
+        progress.save()
 

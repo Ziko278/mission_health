@@ -142,3 +142,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'pre_login'
 LOGOUT_URL = 'pre_logout'
+
+ZOOM_CLIENT_ID = '2Rsd6CJrRpW_jvnCfOIi9w'
+ZOOM_CLIENT_SECRET = 'jDPJZpUB8Wqm8P749C0swmPoiyS2lgnF'

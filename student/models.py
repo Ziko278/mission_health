@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.db import models
 from django.contrib.auth.models import User, Group
 import random
@@ -74,6 +75,11 @@ class StudentsModel(models.Model):
             user.save()
 
         super(StudentsModel, self).save(*args, **kwargs)
+
+    def my_course_list(self):
+        enrollment_model = apps.get_model('training', 'EnrollmentModel')
+        enrollment_list = enrollment_model.objects.filter(student=self, status='active')
+        return [enrollment.course.id for enrollment in enrollment_list]
 
 
 class StudentProfileModel(models.Model):

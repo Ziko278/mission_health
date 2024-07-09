@@ -55,6 +55,9 @@ class EnrollmentModel(models.Model):
 
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.course.__str__()
+
 
 class LessonMaterialModel(models.Model):
     lesson = models.ForeignKey(LessonModel, on_delete=models.CASCADE, related_name='materials')
@@ -79,20 +82,26 @@ class LessonMaterialModel(models.Model):
 
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.title
 
-class LiveSession(models.Model):
-    course = models.ForeignKey(CourseModel, on_delete=models.CASCADE, related_name='live_sessions')
+
+class LiveSessionModel(models.Model):
+    course = models.ForeignKey(CourseModel, on_delete=models.CASCADE, null=True, blank=True, related_name='live_sessions')
     title = models.CharField(max_length=255)
-    description = models.TextField()
-    trainers = models.ManyToManyField(StaffModel, blank=True)
+    description = models.TextField(blank=True, null=True)
     session_date = models.DateField()
     session_time = models.TimeField()
-    duration = models.CharField(max_length=100)
+    duration = models.IntegerField()
+    meeting_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    join_url = models.URLField(blank=True, null=True)
+    start_url = models.URLField(blank=True, null=True)
 
 
-class ProgressTracking(models.Model):
+class ProgressModel(models.Model):
     student = models.ForeignKey(StudentsModel, on_delete=models.CASCADE, related_name='progress')
-    progress = models.JSONField()
+    cohort = models.ForeignKey(CohortModel, on_delete=models.CASCADE, blank=True, null=True)
+    progress = models.JSONField({})
 
 
 class Assignment(models.Model):

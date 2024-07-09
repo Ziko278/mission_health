@@ -1,0 +1,45 @@
+{% extends 'student_portal/layout.html' %}
+{% block 'main' %}
+{% load static %}
+{% load humanize %}
+
+<div class="col-12">
+    <div class="card" style="overflow-x:auto">
+        <div class="card-body">
+            <h5 class="card-title">Live Sessions </h5>
+            <table class="table table-bordered" style="min-width:400px">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" style="min-width:200px">Title</th>
+                    <th scope="col" style="min-width:150px">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if message_list %}
+                {% for message in message_list %}
+                <tr>
+                    <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
+                    <td>{{ message.title|title }}</td>
+                    <td>{{ message.created_at|date }}</td>
+                    <td class="text-center"><b>{% if message.from_student %}  <i class="bi bi-arrow-right text-primary" ></i> {% elif message.to_student %} <i class="bi bi-arrow-left text-success"></i> {% endif %}</b></td>
+                    <td class="text-center">
+                        <a href="{% url 'student_message_detail' message.id %}" title="View Detail" class="btn btn-outline-primary"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
+            {% if not message_list %}
+                <h3 class="text-center">No Upcoming Live Class</h3>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

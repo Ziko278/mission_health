@@ -82,6 +82,12 @@
                     </div><br />
 
                     <div class="form-floating col-6">
+                        {{ form.country }}
+                        <label for="floatingName">Country <span style="color:red"><b></b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
                         {{ form.bank_name }}
                         <label for="floatingName">Bank Name <span style="color:red"><b>*</b></span></label>
                         <br>
@@ -96,6 +102,12 @@
                     <div class="form-floating col-6">
                         {{ form.account_name }}
                         <label for="floatingName">Account Name <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+                        {{ form.use_global }}
+                        <label for="floatingName">Use Globally<span style="color:red"><b></b></span></label>
                         <br>
                     </div><br />
 
@@ -132,6 +144,17 @@
                         <br>
                     </div>
 
+                    <div class="form-floating col-6">
+                        <select name="country" required class="form-control">
+                            <option value="">-----------</option>
+                            {% for country in country_list %}
+                            <option value="{{country.id}}" {% if account.country == country %} selected {% endif %}>{{ country|upper }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingName">Country <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
                     <input type="hidden" name="updated_by" value="{{ user.id }}" />
                     <div class="form-floating col-6">
                         <input type="text" name="bank_name" value="{{ account.bank_name|lower }}" autocomplete="off" required class="form-control">
@@ -141,11 +164,17 @@
                      <div class="form-floating col-6">
                         <input type="text" name="account_number" value="{{ account.account_number }}" autocomplete="off" required class="form-control">
                         <label for="floatingName">Account Number <span style="color:red"><b>*</b></span></label>
+                         <br>
                     </div><br />
 
                     <div class="form-floating col-6">
                         <input type="text" name="account_name" value="{{ account.account_name|lower }}" autocomplete="off" required class="form-control">
                         <label for="floatingName">Account Name <span style="color:red"><b>*</b></span></label>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+                        <input type="checkbox" name="use_global" {% if account.use_global %} checked {% endif %}>
+                        <label for="floatingName">Use Globally <span style="color:red"><b>*</b></span></label>
                     </div><br />
 
                 </div>
