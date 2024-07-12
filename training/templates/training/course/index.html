@@ -31,7 +31,7 @@
                     <th scope="col">Duration</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Description</th>
-                    <th scope="col" class="text-center">Action</th>
+                    <th scope="col" class="text-center" style="min-width:180px">Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -47,6 +47,7 @@
                     <td>{{ course.description}}</td>
 
                     <td class="text-center">
+                         <a href="{% url 'course_detail' course.id %}" title="View Course" class="btn btn-primary"><i class="bi bi-eye"></i></a>
                         <button type="button" title="Edit Course" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
                         <a href="{% url 'course_delete' course.id %}" title="Delete Course" class="btn btn-danger"><i class="bi bi-trash"></i></a>
                     </td>

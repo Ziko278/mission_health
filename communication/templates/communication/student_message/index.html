@@ -1,0 +1,51 @@
+{% extends 'admin_site/layout.html' %}
+{% block 'main' %}
+{% load static %}
+{% load humanize %}
+
+<div class="col-12">
+    <div class="card" style="overflow-x:auto">
+        <div class="card-body">
+            <h5 class="card-title">My Messages </h5>
+            {% if form.errors %}
+                <h5 class="text-danger">{{form.errors}}</h5>
+            {% endif %}
+            <table class="table table-bordered" style="min-width:400px">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" style="min-width:100px">Student</th>
+                    <th scope="col" style="min-width:200px">Title</th>
+                    <th scope="col" style="min-width:150px">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if message_list %}
+                {% for message in message_list %}
+                <tr {% if message.is_replied %} class="bg-success text-white" {% else %} class="bg-warning text-white" {% endif %}>
+                     <td> <img class="rounded-circle" style="width:50px;height:50px" {% if message.from_student.image %} src="{{ message.from_student.image.url }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %}/>
+                    <td><a style="color:white;text-decoration:underline" href="{% url 'student_detail' message.from_student.id %}">{{ message.from_student|title }}</a></td>
+                    <td>{{ message.title|title }}</td>
+                    <td>{{ message.created_at|date }}</td>
+                    <td class="text-center"><b>{% if message.is_replied %}  <span class="text-white">Replied</span> {% else %} <span class="text-white">Not Replied</span>  {% endif %}</b></td>
+                    <td class="text-center">
+                        <a href="{% url 'admin_student_message_create' %}?message_id={{message.id}}" title="Reply Message" class="btn btn-outline-light "><i class="bi bi-envelope"></i></a>
+                        <a href="{% url 'admin_student_message_detail' message.id %}" title="View Detail" class="btn btn-outline-light"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
+            {% if not message_list %}
+                <h3 class="text-center">No Student Messages</h3>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

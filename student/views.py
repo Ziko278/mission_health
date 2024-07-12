@@ -10,9 +10,11 @@ from django.urls import reverse
 # from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from communication.models import RecentActivityModel
+from finance.models import FinanceSettingModel
 from student.models import StudentsModel
 from student.models import *
 from student.forms import *
+from training.models import EnrollmentModel
 
 
 class CohortCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
@@ -33,7 +35,7 @@ class CohortCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessa
 
 class CohortListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = CohortModel
-    permission_required = 'student.add_cohortmodel'
+    permission_required = 'student.view_cohortmodel'
     fields = '__all__'
     template_name = 'student/cohort/index.html'
     context_object_name = "cohort_list"
@@ -49,7 +51,7 @@ class CohortListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 class CohortUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = CohortModel
-    permission_required = 'student.add_cohortmodel'
+    permission_required = 'student.change_cohortmodel'
     form_class = CohortForm
     template_name = 'student/cohort/index.html'
     success_message = 'Cohort Successfully Updated'
@@ -62,9 +64,21 @@ class CohortUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessa
         return context
 
 
+class CohortDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    model = CohortModel
+    permission_required = 'student.view_cohortmodel'
+    template_name = 'student/cohort/detail.html'
+    context_object_name = 'cohort'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['student_list'] = StudentsModel.objects.filter(cohort=self.object)
+        return context
+
+
 class CohortDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = CohortModel
-    permission_required = 'student.add_cohortmodel'
+    permission_required = 'student.delete_cohortmodel'
     fields = '__all__'
     template_name = 'student/cohort/delete.html'
     context_object_name = "cohort"
@@ -104,7 +118,7 @@ class StudentListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     context_object_name = "student_list"
 
     def get_queryset(self):
-        return StudentsModel.objects.filter().exclude(status='graduated').order_by('surname')
+        return StudentsModel.objects.filter().exclude(cohort__status=2).order_by('surname')
 
 
 class StudentAlumniListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -127,6 +141,8 @@ class StudentDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['enrollment_list'] = EnrollmentModel.objects.filter(student=self.object, status='active')
+        context['default_currency'] = FinanceSettingModel.objects.first().default_currency.symbol
         return context
 
 

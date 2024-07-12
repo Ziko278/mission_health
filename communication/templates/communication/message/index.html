@@ -39,6 +39,7 @@
                     <td>{{ message.title|title }}</td>
                     <td>{{ message.message }}</td>
                     <td class="text-center">
+                        <a title="Send Message" href="{% url 'send_email' %}?message_id={{message.id}}" class="btn btn-primary"><i class="bi bi-envelope"></i></a>
                         <button title="Edit Message" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
                         <a title="Delete Message" href="{% url 'message_delete' message.id %}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
                     </td>

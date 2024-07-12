@@ -1,11 +1,13 @@
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.messages.views import SuccessMessageMixin, messages
 from django.views.generic import TemplateView
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -14,20 +16,18 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.core.mail import EmailMessage, send_mail, get_connection, EmailMultiAlternatives
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.html import strip_tags
-from django.template.loader import render_to_string
 from num2words import num2words
 from six import text_type
 
+from admin_site.models import SiteInfoModel
 from communication.models import *
 from communication.forms import *
-
-from django.core.mail import send_mail, EmailMessage
-from django.core.mail.backends.smtp import EmailBackend
 
 from django.core.mail import EmailMessage, get_connection
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+
+from student.models import CohortModel
 
 
 def send_custom_email(subject, recipient_list, email_id, template_name, context):
@@ -72,19 +72,9 @@ def send_custom_email(subject, recipient_list, email_id, template_name, context)
     return mail_sent
 
 
-
-
-# Example usage
-# send_custom_email(
-#     subject='Test Email',
-#     message='This is a test email.',
-#     recipient_list=['recipient@example.com'],
-#     email_setting_name='Gmail Account'
-# )
-
-
-class SMTPConfigurationCreateView(SuccessMessageMixin, CreateView):
+class SMTPConfigurationCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = SMTPConfigurationModel
+    permission_required = 'communication.change_communicationsettingmodel'
     form_class = SMTPConfigurationForm
     success_message = 'Email Configuration Added Successfully'
     template_name = 'communication/smtp_configuration/index.html'
@@ -98,8 +88,9 @@ class SMTPConfigurationCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class SMTPConfigurationListView(ListView):
+class SMTPConfigurationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = SMTPConfigurationModel
+    permission_required = 'communication.view_communicationsettingmodel'
     fields = '__all__'
     template_name = 'communication/smtp_configuration/index.html'
     context_object_name = "smtp_configuration_list"
@@ -115,8 +106,9 @@ class SMTPConfigurationListView(ListView):
         return context
 
 
-class SMTPConfigurationUpdateView(SuccessMessageMixin, UpdateView):
+class SMTPConfigurationUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = SMTPConfigurationModel
+    permission_required = 'communication.change_communicationsettingmodel'
     form_class = SMTPConfigurationForm
     success_message = 'Email Configuration Updated Successfully'
     template_name = 'communication/smtp_configuration/index.html'
@@ -131,8 +123,9 @@ class SMTPConfigurationUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class SMTPConfigurationDeleteView(SuccessMessageMixin, DeleteView):
+class SMTPConfigurationDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = SMTPConfigurationModel
+    permission_required = 'communication.change_communicationsettingmodel'
     success_message = 'Email Configuration Deleted Successfully'
     fields = '__all__'
     template_name = 'communication/smtp_configuration/delete.html'
@@ -146,8 +139,9 @@ class SMTPConfigurationDeleteView(SuccessMessageMixin, DeleteView):
         return context
 
 
-class MessageCreateView(SuccessMessageMixin, CreateView):
+class MessageCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = MessageModel
+    permission_required = 'communication.add_messagemodel'
     form_class = MessageForm
     success_message = 'Message Saved Successfully'
     template_name = 'communication/message/index.html'
@@ -161,8 +155,9 @@ class MessageCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = MessageModel
+    permission_required = 'communication.add_messagemodel'
     fields = '__all__'
     template_name = 'communication/message/index.html'
     context_object_name = "message_list"
@@ -177,8 +172,9 @@ class MessageListView(ListView):
         return context
 
 
-class MessageUpdateView(SuccessMessageMixin, UpdateView):
+class MessageUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = MessageModel
+    permission_required = 'communication.add_messagemodel'
     form_class = MessageForm
     success_message = 'Message Updated Successfully'
     template_name = 'communication/message/index.html'
@@ -193,8 +189,9 @@ class MessageUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class MessageDeleteView(SuccessMessageMixin, DeleteView):
+class MessageDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = MessageModel
+    permission_required = 'communication.add_messagemodel'
     success_message = 'Message Deleted Successfully'
     fields = '__all__'
     template_name = 'communication/message/delete.html'
@@ -312,11 +309,149 @@ account_activation_token = TokenGenerator()
 #     return mail_sent
 
 
-def send_test_email_view(request):
-    send_custom_email(
-        subject='Test Email',
-        message='This is a test email sent from a dynamic email setting.',
-        recipient_list=['recipient@example.com'],
-        email_setting_name='Gmail Account'
-    )
-    return HttpResponse("Test email sent successfully.")
+@login_required
+@permission_required('communication.add_smtpconfigurationmodel')
+def send_email(request):
+    if request.method == 'POST':
+        smtp = request.POST.get('smtp')
+        try:
+            default_mail_account = CommunicationSettingModel.objects.get(pk=smtp)
+        except Exception:
+            messages.error(request, 'An Error Occured and Mail failed to send')
+            return redirect(reverse('send_email'))
+
+        subject = request.POST.get('subject')
+        body = request.POST.get('body')
+
+        context = {
+            'domain': get_current_site(request),
+            'site_info': SiteInfoModel.objects.first(),
+            'subject': subject,
+            'body': body
+        }
+
+        email_list = []
+        email_string = request.POST.get('email')
+        if email_string:
+            email_string_list = email_string.split(",")
+            for mail in email_string_list:
+                email_list.append(mail.strip().lower())
+        if 'student_recipient' in request.POST:
+            recipient = request.POST.get('student_recipient').lower()
+            if recipient == 'all student':
+                student_list = StudentsModel.objects.all()
+            elif recipient == 'active student':
+                student_list = StudentsModel.objects.all().exclude(cohort__status='2')
+            else:
+                try:
+                    student_list = StudentsModel.objects.filter(cohort=recipient)
+                except Exception:
+                    student_list = None
+            if student_list:
+                for student in student_list:
+                    if student.email and student.email not in email_list:
+                        email_list.append(student.email)
+
+        if 'staff_recipient' in request.POST:
+            recipient = request.POST.get('staff_recipient').lower()
+            if recipient == 'all staff':
+                staff_list = StaffModel.objects.all()
+            else:
+                try:
+                    staff_list = StudentsModel.objects.filter(position=recipient)
+                except Exception:
+                    staff_list = None
+            if staff_list:
+                for staff in staff_list:
+                    if staff.email and staff.email not in email_list:
+                        email_list.append(staff.email)
+
+        mail_sent = 0
+        for email in email_list:
+            mail_sent = send_custom_email(
+                subject=subject.upper(),
+                recipient_list=[email],
+                email_id=default_mail_account.id,
+                template_name='communication/template/send_mail.html',
+                context=context
+            )
+
+        if mail_sent > 0:
+            messages.success(request, '{} Mail(s) sent successfully'.format(mail_sent))
+            return redirect(reverse('send_email'))
+        else:
+            messages.warning(request, 'No mail sent, this may be due to wrong addresses provided')
+            return redirect(reverse('send_email'))
+
+    context = {
+        'cohort_list': CohortModel.objects.all().order_by('id').reverse(),
+        'position_list': Group.objects.all().order_by(Lower('name')),
+        'smtp_list': SMTPConfigurationModel.objects.all().order_by(Lower('name')),
+        'default_smtp': CommunicationSettingModel.objects.first().default_smtp
+    }
+    message_id = request.GET.get('message_id', None)
+    if message_id:
+        message = get_object_or_404(MessageModel, pk=message_id)
+        context['message'] = message
+    return render(request, 'communication/mail/send.html', context)
+
+
+class StudentMessageCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    model = StudentMessageModel
+    permission_required = 'communication.add_studentmessagemodel'
+    form_class = StudentMessageForm
+    success_message = 'Message Sent!'
+    template_name = 'communication/student_message/create.html'
+
+    def dispatch(self, *args, **kwargs):
+        pk = self.request.POST.get('message_id')
+        if pk:
+            form = StudentMessageForm(self.request.POST)
+            if form.is_valid():
+                message = get_object_or_404(StudentMessageModel, pk=pk)
+                message.is_replied = True
+                message.save()
+
+        return super(StudentMessageCreateView, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('admin_student_message_detail', kwargs={'pk': self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.request.GET.get('message_id', None)
+        if pk:
+            context['student_message'] = get_object_or_404(StudentMessageModel, pk=pk)
+        else:
+            pk = self.request.GET.get('student_id', None)
+            if pk:
+                context['student'] = get_object_or_404(StudentsModel, pk=pk)
+        return context
+
+
+class StudentMessageListView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, ListView):
+    model = StudentMessageModel
+    permission_required = 'communication.add_studentmessagemodel'
+    template_name = 'communication/student_message/index.html'
+    context_object_name = "message_list"
+
+    def get_queryset(self):
+        return StudentMessageModel.objects.exclude(from_student__cohort__status=2).exclude(from_student=None).order_by('created_at').reverse()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
+class StudentMessageDetailView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DetailView):
+    model = StudentMessageModel
+    permission_required = 'communication.add_studentmessagemodel'
+    template_name = 'communication/student_message/detail.html'
+    context_object_name = "message"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+

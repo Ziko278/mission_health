@@ -17,7 +17,11 @@ urlpatterns = [
     path('communication-setting/<int:pk>/detail', CommunicationSettingDetailView.as_view(), name='communication_setting_detail'),
     path('communication-setting/<int:pk>/edit', CommunicationSettingUpdateView.as_view(), name='communication_setting_edit'),
 
+    path('email/send', send_email, name='send_email'),
 
+    path('student-message/create', StudentMessageCreateView.as_view(), name='admin_student_message_create'),
+    path('student-message/index', StudentMessageListView.as_view(), name='admin_student_message_index'),
+    path('student-message/<int:pk>/detail', StudentMessageDetailView.as_view(), name='admin_student_message_detail'),
 
 ]
 

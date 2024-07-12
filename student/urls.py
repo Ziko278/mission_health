@@ -4,6 +4,7 @@ from student.views import *
 urlpatterns = [
     path('cohort/create', CohortCreateView.as_view(), name='cohort_create'),
     path('cohort/index', CohortListView.as_view(), name='cohort_index'),
+    path('cohort/<int:pk>/detail', CohortDetailView.as_view(), name='cohort_detail'),
     path('cohort/<int:pk>/edit', CohortUpdateView.as_view(), name='cohort_edit'),
     path('cohort/<int:pk>/delete', CohortDeleteView.as_view(), name='cohort_delete'),
 

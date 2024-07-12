@@ -24,17 +24,20 @@
               <div class="form-floating mb-3 col-md-4">
                 <input type="hidden" name="user" value="{{ user.id }}" />
                 {{form.first_name}}
-                <label for="floatingInput"> Surname <span style="color:red"><b>*</b></span></label>
-                <div class="invalid-tooltip">Surname is required!</div>
+                <label for="floatingInput"> First Name <span style="color:red"><b>*</b></span></label>
+                <div class="invalid-tooltip">First Name is required!</div>
               </div>
-              <div class="form-floating mb-3 col-md-4">
-                {{form.middle_name}}
-                <label for="floatingPassword">Middle Name</label>
-              </div>
+
               <div class="form-floating mb-3 col-md-4">
                 {{form.last_name}}
                 <label for="floatingPassword">Last Name <span style="color:red">*</span></label>
                 <div class="invalid-tooltip">last name is required!</div>
+              </div>
+
+              <div class="form-floating mb-3 col-md-4">
+                {{form.gender}}
+                <label for="floatingInput">Gender <span style="color:red">*</span></label>
+                <div class="invalid-tooltip">Select Gender</div>
               </div>
             </div>
 
@@ -54,12 +57,6 @@
             </div>
 
             <div class="row mb-3">
-              <div class="form-floating mb-3 col-md-4">
-                {{form.gender}}
-                <label for="floatingInput">Gender <span style="color:red">*</span></label>
-                <div class="invalid-tooltip">Select Gender</div>
-              </div>
-
               <div class="form-floating mb-3 col-md-4">
                 {{form.date_of_birth}}
                 <label for="floatingPassword">Date of Birth</label>

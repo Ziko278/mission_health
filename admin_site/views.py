@@ -1,3 +1,6 @@
+import re
+
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, DetailView, ListView
@@ -5,13 +8,14 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin, messages
 # from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.urls import reverse
 # from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from communication.models import RecentActivityModel
-from human_resource.models import StaffProfileModel
-from student.models import StudentsModel
+from human_resource.forms import StaffProfileForm
+from human_resource.models import StaffProfileModel, StaffModel
+from student.models import StudentsModel, CohortModel
 from admin_site.models import *
 from admin_site.forms import *
 
@@ -22,7 +26,13 @@ class AdminDashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['recent_activity_list'] = RecentActivityModel.objects.all().order_by('id').reverse()[:10]
-        context['active_students'] = StudentsModel.objects.filter(status='active').count()
+        context['active_students'] = StudentsModel.objects.all().exclude(cohort__status=2).count()
+        context['male_students'] = StudentsModel.objects.filter(gender='male').exclude(cohort__status=2).count()
+        context['female_students'] = StudentsModel.objects.filter(gender='female').exclude(cohort__status=2).count()
+        context['all_students'] = StudentsModel.objects.all().count()
+        context['all_position'] = Group.objects.all().count()
+        context['all_staff'] = StaffModel.objects.filter(status='active').count()
+        context['cohort_list'] = CohortModel.objects.all().order_by('id').reverse()[:10]
         return context
 
 
@@ -88,7 +98,7 @@ class SiteInfoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMes
 
 class ProfessionCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = ProfessionModel
-    permission_required = 'admin_site.add_professionmodel'
+    permission_required = 'admin_site.change_siteinfomodel'
     form_class = ProfessionForm
     template_name = 'admin_site/profession/index.html'
     success_message = 'Profession Successfully Registered'
@@ -104,7 +114,7 @@ class ProfessionCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessM
 
 class ProfessionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = ProfessionModel
-    permission_required = 'admin_site.add_professionmodel'
+    permission_required = 'admin_site.view_siteinfomodel'
     fields = '__all__'
     template_name = 'admin_site/profession/index.html'
     context_object_name = "profession_list"
@@ -120,7 +130,7 @@ class ProfessionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 class ProfessionUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = ProfessionModel
-    permission_required = 'admin_site.add_professionmodel'
+    permission_required = 'admin_site.change_siteinfomodel'
     form_class = ProfessionForm
     template_name = 'admin_site/profession/index.html'
     success_message = 'Profession Successfully Updated'
@@ -135,7 +145,7 @@ class ProfessionUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessM
 
 class ProfessionDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ProfessionModel
-    permission_required = 'admin_site.add_professionmodel'
+    permission_required = 'admin_site.change_siteinfomodel'
     fields = '__all__'
     template_name = 'admin_site/profession/delete.html'
     context_object_name = "profession"
@@ -151,7 +161,7 @@ class ProfessionDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessM
 
 class CountryCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = CountryModel
-    permission_required = 'admin_site.add_countrymodel'
+    permission_required = 'admin_site.change_siteinfomodel'
     form_class = CountryForm
     template_name = 'admin_site/country/index.html'
     success_message = 'Country Successfully Registered'
@@ -167,7 +177,7 @@ class CountryCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMess
 
 class CountryListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = CountryModel
-    permission_required = 'admin_site.add_countrymodel'
+    permission_required = 'admin_site.view_siteinfomodel'
     fields = '__all__'
     template_name = 'admin_site/country/index.html'
     context_object_name = "country_list"
@@ -183,7 +193,7 @@ class CountryListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 class CountryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = CountryModel
-    permission_required = 'admin_site.add_countrymodel'
+    permission_required = 'admin_site.change_siteinfomodel'
     form_class = CountryForm
     template_name = 'admin_site/country/index.html'
     success_message = 'Country Successfully Updated'
@@ -198,7 +208,7 @@ class CountryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMess
 
 class CountryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = CountryModel
-    permission_required = 'admin_site.add_countrymodel'
+    permission_required = 'admin_site.change_siteinfomodel'
     fields = '__all__'
     template_name = 'admin_site/country/delete.html'
     context_object_name = "country"
@@ -261,3 +271,78 @@ def admin_sign_in_view(request):
 def admin_sign_out_view(request):
     logout(request)
     return redirect(reverse('admin_login'))
+
+
+class StaffProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'admin_site/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.user.is_superuser:
+            staff = StaffProfileModel.objects.get(user=self.request.user).staff
+            context['staff'] = staff
+            context['form'] = StaffProfileForm(instance=staff)
+        return context
+
+
+class StaffProfileChangeView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = StaffModel
+    template_name = 'admin_site/profile.html'
+    form_class = StaffProfileForm
+    success_message = 'Profile Successfully Updated'
+
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.is_superuser:
+            return redirect(reverse('site_info_edit', kwargs={'pk': 1}))
+        return super(StaffProfileChangeView, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('staff_profile')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        staff = StaffProfileModel.objects.get(user=self.request.user).staff
+        context['staff'] = staff
+        context['form'] = StaffProfileForm(instance=staff)
+        return context
+
+
+@login_required
+def admin_change_password_view(request):
+    if request.method == 'POST':
+        current_password = request.POST['current_password']
+        new_password1 = request.POST['new_password1']
+        new_password2 = request.POST['new_password2']
+
+        # Verify the current password
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Incorrect current password.')
+            return redirect(reverse('admin_change_password'))
+
+        # Check if the new passwords match
+        if len(new_password1) < 8:
+            messages.error(request, 'Password must have at least 8 characters.')
+            return redirect(reverse('admin_change_password'))
+
+        if not re.match(r"^(?=.*[a-zA-Z])(?=.*\d).+$", new_password1):
+            messages.error(request, 'Password must contain both letters and numbers.')
+            return redirect(reverse('admin_change_password'))
+
+        if new_password1 != new_password2:
+            messages.error(request, 'New passwords do not match.')
+            return redirect(reverse('admin_change_password'))
+
+        # Update the user's password
+        user = request.user
+        user.set_password(new_password1)
+        user.save()
+
+        # Update the user's session with the new password
+        update_session_auth_hash(request, user)
+
+        logout(request)
+
+        messages.success(request, 'Password successfully changed. Please log in with the new password.')
+        return redirect('admin_login')
+
+    return render(request, 'admin_site/change_password.html')

@@ -43,7 +43,7 @@ urlpatterns = [
 
     path('message/create', StudentMessageCreateView.as_view(), name='student_message_create'),
     path('message/index', StudentMessageListView.as_view(), name='student_message_index'),
-    path('message/<int:pk>/detail>', StudentMessageDetailView.as_view(), name='student_message_detail'),
+    path('message/<int:pk>/detail', StudentMessageDetailView.as_view(), name='student_message_detail'),
 
 ]
 

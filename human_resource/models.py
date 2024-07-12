@@ -8,7 +8,6 @@ from admin_site.models import DaysModel
 
 class StaffModel(models.Model):
     first_name = models.CharField(max_length=50)
-    middle_name = models.CharField(max_length=50, null=True, blank=True, default='')
     last_name = models.CharField(max_length=50)
 
     image = models.ImageField(upload_to='images/staff', blank=True, null=True)
@@ -40,10 +39,7 @@ class StaffModel(models.Model):
         ]
 
     def __str__(self):
-        if self.middle_name:
-            return "{} {} {}".format(self.first_name, self.middle_name, self.last_name)
-        else:
-            return "{} {}".format(self.first_name, self.last_name)
+        return "{} {}".format(self.first_name, self.last_name)
 
     def save(self, *args, **kwargs):
         with transaction.atomic():

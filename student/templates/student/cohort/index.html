@@ -18,7 +18,7 @@
         </div>
 
         <div class="card-body">
-            <h5 class="card-title">List of Nurse Related Cohorts </h5>
+            <h5 class="card-title">List of Cohorts </h5>
             {% if form.errors %}
                 <h5 class="text-danger">{{form.errors}}</h5>
             {% endif %}
@@ -53,6 +53,7 @@
                     </td>
 
                     <td class="text-center">
+                        <a href="{% url 'cohort_detail' cohort.id %}" title="Cohort Detail" class="btn btn-primary"><i class="bi bi-eye"></i></a>
                         <button type="button" title="Edit Cohort" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
                         <a href="{% url 'cohort_delete' cohort.id %}" title="Delete Cohort" class="btn btn-danger"><i class="bi bi-trash"></i></a>
                     </td>

@@ -5,9 +5,9 @@
 {% block 'main' %}
 <section class="section dashboard">
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="row">
-                <div class="col-xxl-4 col-md-6">
+                <div class="col-md-4">
                     <div class="card info-card sales-card">
                         <div class="card-body">
                             <h5 class="card-title"></h5>
@@ -24,7 +24,7 @@
                     </div>
                 </div>
 
-                <div class="col-xxl-4 col-md-6">
+                <div class="col-md-4">
                     <div class="card info-card revenue-card">
                         <div class="card-body">
                             <h5 class="card-title">Student <span>| Detail</span></h5>
@@ -45,7 +45,7 @@
                     </div>
                 </div>
 
-                <div class="col-xxl-4 col-md-6">
+                <div class="col-md-4">
                     <div class="card info-card revenue-card">
                         <div class="card-body">
                             <h5 class="card-title">Student <span>| Detail</span></h5>
@@ -65,40 +65,42 @@
 
                 <div class="col-12">
                     <h2 class="card-title"><b>Active courses</b></h2>
+                    <div class="row">
                     {% for enrollment in enrollment_list %}
-                    <div class="card">
-                        <div class="card-body pb-0">
+                    <div class="col-md-6 col-lg-4">
+                         <div class="card">
+                            <div class="card-body pb-0">
+                                <h5 class="card-title">{{ enrollment|title}} <span> </span></h5>
+                                    {% if enrollment.course|course_progress_percent:student.id > 0 %}
+                                         <canvas id="pieChart{{forloop.counter}}" style="height: 100px;"></canvas>
+                                        <h1 class="card-title text-center">Course Progress</h1>
+                                        {% endif %}
+                                      <script>
+                                        document.addEventListener("DOMContentLoaded", () => {
+                                          new Chart(document.querySelector('#pieChart{{forloop.counter}}'), {
+                                            type: 'pie',
+                                            data: {
 
-                            <h5 class="card-title">{{ enrollment|title}} <span> </span></h5>
-                                {% if enrollment.course|course_progress_percent:student.id > 0 %}
-                                     <canvas id="pieChart{{forloop.counter}}" style="height: 100px;"></canvas>
-                                    <h1 class="card-title text-center">Course Progress</h1>
-                                    {% endif %}
-                                  <script>
-                                    document.addEventListener("DOMContentLoaded", () => {
-                                      new Chart(document.querySelector('#pieChart{{forloop.counter}}'), {
-                                        type: 'pie',
-                                        data: {
+                                              datasets: [{
+                                                label: 'Active course',
+                                                data: [{{enrollment.course|course_progress_percent:student.id}}, {{enrollment.course|course_progress_percent_left:student.id}}],
+                                                backgroundColor: [
+                                                  'rgb(75, 192, 192)',
+                                                  'rgb(255, 255, 255)',
 
-                                          datasets: [{
-                                            label: 'Active course',
-                                            data: [{{enrollment.course|course_progress_percent:student.id}}, {{enrollment.course|course_progress_percent_left:student.id}}],
-                                            backgroundColor: [
-                                              'rgb(75, 192, 192)',
-                                              'rgb(255, 255, 255)',
+                                                ],
+                                                hoverOffset: 4
+                                              }]
+                                            }
+                                          });
+                                        });
+                                      </script>
 
-                                            ],
-                                            hoverOffset: 4
-                                          }]
-                                        }
-                                      });
-                                    });
-                                  </script>
-
-
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
+                    </div>
                 </div>
 
 

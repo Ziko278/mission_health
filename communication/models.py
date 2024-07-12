@@ -49,6 +49,8 @@ class StudentMessageModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     from_student = models.ForeignKey(StudentsModel, on_delete=models.SET_NULL, null=True, blank=True, related_name='from_student')
     to_student = models.ForeignKey(StudentsModel, on_delete=models.SET_NULL, null=True, blank=True)
+    is_replied = models.BooleanField(blank=True, default=False)
+
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 

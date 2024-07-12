@@ -7,6 +7,10 @@ urlpatterns = [
     path('', AdminDashboardView.as_view(), name='admin_dashboard'),
     path('login', admin_sign_in_view, name='admin_login'),
     path('logout', admin_sign_out_view, name='admin_logout'),
+    
+    path('profile', StaffProfileView.as_view(), name='staff_profile'),
+    path('profile/<int:pk>/edit', StaffProfileChangeView.as_view(), name='staff_profile_edit'),
+    path('change-password', admin_change_password_view, name='admin_change_password'),
 
     path('site-info/create', SiteInfoCreateView.as_view(), name='site_info_create'),
     path('site-info/<int:pk>/detail', SiteInfoDetailView.as_view(), name='site_info_detail'),

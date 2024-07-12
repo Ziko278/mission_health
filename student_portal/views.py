@@ -702,7 +702,7 @@ def student_change_password_view(request):
             messages.error(request, 'Password must have at least 8 characters.')
             return redirect(reverse('student_change_password'))
 
-        if not re.match("^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$", new_password1):
+        if not re.match(r"^(?=.*[a-zA-Z])(?=.*\d).+$", new_password1):
             messages.error(request, 'Password must contain both letters and numbers.')
             return redirect(reverse('student_change_password'))
 

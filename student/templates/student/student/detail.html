@@ -1,12 +1,15 @@
 {% extends 'admin_site/layout.html' %}
 {% load static %}
+{% load fee_custom_filters %}
+{% load humanize %}
 {% block 'main' %}
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
         <div class="card-body">
             <h4 class="card-title">ACTIONS:
-                <a title="Edit Student" href="{% url 'student_edit' student.id %}" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                <a title="Edit Student" href="{% url 'student_edit' student.id %}" class="btn btn-warning"><i class="bi bi-pencil-square"></i></a>
                 <a title="Delete Student" href="{% url 'student_delete' student.id %}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                <a title="Send Message" href="{% url 'admin_student_message_create' %}?student_id={{student.id}}" class="btn btn-primary"><i class="bi bi-envelope"></i></a>
 
             </h4>
         </div>
@@ -22,11 +25,7 @@
                         <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">BIO DATA</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">RESULT</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">ATTENDANCE</a>
+                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">COURSES</a>
                     </li>
 
                     <li class="nav-item">
@@ -78,25 +77,101 @@
                     </div>
 
                     <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-                        <div class="row">
-                            <div class="col-12 grid-margin">
-                                <div class="card">
-                                    <div class="card-body">
+                        <section class="section dashboard">
+                            <div class="row">
+                                <h1 class="card-title px-4">{{ student|title }} Enrolled Courses</h1>
+                                {% if enrollment_list %}
+                                    {% for enrollment in enrollment_list %}
+                                    <div class="col-xxl-4 col-md-6">
+                                        <div class="card info-card sales-card">
+                                            <div class="card-body">
+                                                <h5 class="card-title"> From {{ enrollment.cohort.start_date|date }}  to {{ enrollment.cohort.end_date|date }} <span> </span></h5>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                        <i class="bi bi-calendar2-fill"></i>
+                                                    </div>
+                                                    <div class="ps-3">
+                                                        <h6 class="fs-6">{{ enrollment.course }}</h6>
+                                                        <span class="text small pt-1 fw-bold">Cohort: {{ enrollment.cohort|title }}</span> <span class="text-muted small pt-2 ps-1"></span>
+                                                    </div>
 
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="col-12">
+                                        <div class="card info-card sales-card">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center pt-4">
+                                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                        <i class="bi bi-x text-danger"></i>
+                                                    </div>
+                                                    <div class="ps-3">
+                                                        <h6>No active course</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
                             </div>
-                        </div>
-
-                    </div>
-
-                    <div class="tab-pane fade pt-3" id="profile-settings">
-                        <h5 class="card-title"></h5>
+                        </section>
 
                     </div>
 
                     <div class="tab-pane fade pt-3" id="profile-change-password">
+                        <section class="section dashboard">
+                            <div class="row">
+                                <h1 class="card-title px-4">Fee Dashboard for {{ student|title }}</h1>
+                                {% if enrollment_list %}
+                                    {% for enrollment in enrollment_list %}
+                                    <div class="col-12 col-md-12">
+                                        <div class="card info-card sales-card">
+                                            <div class="card-body">
+                                                <h5 class="card-title"> From {{ enrollment.cohort.start_date|date }}  to {{ enrollment.cohort.end_date|date }} <span> </span></h5>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="ps-3">
+                                                        <h6 class="fs-5">{{ enrollment.course }}</h6>
+                                                        <br/>
+                                                        <h6 class="fs-5">Fee: {{ default_currency }}{{ enrollment.amount|floatformat|intcomma }}</h6>
+                                                        <br>
+                                                        <h6 class="fs-5">Paid: {{ default_currency }}{{ enrollment|get_amount_paid:student.id|floatformat|intcomma }} </h6>
 
+                                                    </div>
+
+                                                </div>
+                                                {% if enrollment|get_amount_paid:student.id|floatformat < enrollment.amount|floatformat %}
+                                                {% else %}
+                                                <br>
+                                                    <span class="text-success m-4">PAYMENT COMPLETE</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="col-12">
+                                        <div class="card info-card sales-card">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center pt-4">
+                                                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                        <i class="bi bi-x text-danger"></i>
+                                                    </div>
+                                                    <div class="ps-3">
+                                                        <h6>You have no active course</h6>
+                                                        <a href="{% url 'student_enroll_dashboard' %}" class="btn btn-outline-primary mt-3">Enroll Now</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>

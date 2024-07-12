@@ -18,6 +18,9 @@ class CohortModel(models.Model):
     def __str__(self):
         return self.name.upper()
 
+    def student_count(self):
+        return StudentsModel.objects.filter(cohort=self).count()
+
 
 class StudentsModel(models.Model):
     """"""

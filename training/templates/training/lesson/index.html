@@ -94,6 +94,12 @@
                         <br>
                     </div><br />
 
+                    <div class="form-floating col-6">
+                        {{ form.order }}
+                        <label for="floatingName">Order <span style="color:red"><b></b></span></label>
+                        <br>
+                    </div><br />
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
@@ -135,6 +141,12 @@
                     <div class="form-floating col-12">
                         <textarea name="description" class="form-control">{{ lesson.description }}</textarea>
                         <label for="floatingName">Start Date <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <input type="number" name="order" value="{{ lesson.order }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Order <span style="color:red"><b>*</b></span></label>
                         <br>
                     </div>
 

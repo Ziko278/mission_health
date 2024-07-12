@@ -54,9 +54,27 @@ class StaffEditForm(ModelForm):
             'staff_id': TextInput(attrs={
                 'readonly': True
             }),
-            'medical_conditions': TextInput(attrs={
-                'style': 'height:50px'
-            }),
+
+        }
+
+
+class StaffProfileForm(ModelForm):
+    """"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control',
+                'autocomplete': 'off'
+            })
+
+    class Meta:
+        model = StaffModel
+        fields = ['first_name', 'last_name', 'gender', 'address', 'date_of_birth', 'mobile', 'image']
+        widgets = {
+            'date_of_birth': TextInput({
+                'type': 'date'
+            })
         }
 
 

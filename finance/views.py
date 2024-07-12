@@ -20,7 +20,7 @@ from finance.forms import *
 
 class CurrencyCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = CurrencyModel
-    permission_required = 'finance.add_currencymodel'
+    permission_required = 'finance.change_financesettingmodel'
     form_class = CurrencyForm
     template_name = 'finance/currency/index.html'
     success_message = 'Currency Successfully Registered'
@@ -36,7 +36,7 @@ class CurrencyCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMes
 
 class CurrencyListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = CurrencyModel
-    permission_required = 'finance.add_currencymodel'
+    permission_required = 'finance.view_financesettingmodel'
     fields = '__all__'
     template_name = 'finance/currency/index.html'
     context_object_name = "currency_list"
@@ -53,7 +53,7 @@ class CurrencyListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 class CurrencyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = CurrencyModel
-    permission_required = 'finance.add_currencymodel'
+    permission_required = 'finance.change_financesettingmodel'
     form_class = CurrencyForm
     template_name = 'finance/currency/index.html'
     success_message = 'Currency Successfully Updated'
@@ -68,7 +68,7 @@ class CurrencyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMes
 
 class CurrencyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = CurrencyModel
-    permission_required = 'finance.add_currencymodel'
+    permission_required = 'finance.change_financesettingmodel'
     fields = '__all__'
     template_name = 'finance/currency/delete.html'
     context_object_name = "currency"
@@ -144,7 +144,7 @@ class FinanceSettingUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Succ
 
 class BankAccountCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = BankAccountModel
-    permission_required = 'finance.add_bankaccountmodel'
+    permission_required = 'finance.change_financesettingmodel'
     form_class = BankAccountForm
     template_name = 'finance/bank_account/index.html'
     success_message = 'Bank Account Successfully Registered'
@@ -160,7 +160,7 @@ class BankAccountCreateView(LoginRequiredMixin, PermissionRequiredMixin, Success
 
 class BankAccountListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = BankAccountModel
-    permission_required = 'finance.add_bank_accountmodel'
+    permission_required = 'finance.view_financesettingmodel'
     fields = '__all__'
     template_name = 'finance/bank_account/index.html'
     context_object_name = "bank_account_list"
@@ -178,7 +178,7 @@ class BankAccountListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
 
 class BankAccountUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = BankAccountModel
-    permission_required = 'finance.add_bankaccountmodel'
+    permission_required = 'finance.change_financesettingmodel'
     form_class = BankAccountForm
     template_name = 'finance/bank_account/index.html'
     success_message = 'Bank Account Successfully Updated'
@@ -193,7 +193,7 @@ class BankAccountUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Success
 
 class BankAccountDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = BankAccountModel
-    permission_required = 'finance.add_bankaccountmodel'
+    permission_required = 'finance.change_financesettingmodel'
     fields = '__all__'
     template_name = 'finance/bank_account/delete.html'
     context_object_name = "bank_account"
@@ -209,7 +209,7 @@ class BankAccountDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Success
 
 class OnlinePaymentPlatformCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = OnlinePaymentPlatformModel
-    permission_required = 'finance.add_onlinepaymentplatformmodel'
+    permission_required = 'finance.change_financesettingmodel'
     form_class = OnlinePaymentPlatformForm
     success_message = 'Payment Method Added Successfully'
     template_name = 'finance/online_payment/index.html'
@@ -226,7 +226,7 @@ class OnlinePaymentPlatformCreateView(LoginRequiredMixin, PermissionRequiredMixi
 
 class OnlinePaymentPlatformListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = OnlinePaymentPlatformModel
-    permission_required = 'finance.view_onlinepaymentplatformmodel'
+    permission_required = 'finance.view_financesettingmodel'
     fields = '__all__'
     template_name = 'finance/online_payment/index.html'
     context_object_name = "online_payment_list"
@@ -243,7 +243,7 @@ class OnlinePaymentPlatformListView(LoginRequiredMixin, PermissionRequiredMixin,
 
 class OnlinePaymentPlatformDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = OnlinePaymentPlatformModel
-    permission_required = 'finance.view_onlinepaymentplatformmodel'
+    permission_required = 'finance.view_financesettingmodel'
     fields = '__all__'
     template_name = 'finance/online_payment/detail.html'
     context_object_name = "method"
@@ -260,7 +260,7 @@ class OnlinePaymentPlatformDetailView(LoginRequiredMixin, PermissionRequiredMixi
 
 class OnlinePaymentPlatformUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = OnlinePaymentPlatformModel
-    permission_required = 'finance.add_onlinepaymentplatformmodel'
+    permission_required = 'finance.change_financesettingmodel'
     form_class = OnlinePaymentPlatformForm
     success_message = 'Online Payment Method Updated Successfully'
     template_name = 'finance/online_payment/index.html'
@@ -277,7 +277,7 @@ class OnlinePaymentPlatformUpdateView(LoginRequiredMixin, PermissionRequiredMixi
 
 class OnlinePaymentPlatformDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = OnlinePaymentPlatformModel
-    permission_required = 'finance.add_onlinepaymentplatformmodel'
+    permission_required = 'finance.change_financesettingmodel'
     success_message = 'Online Payment Method Deleted Successfully'
     fields = '__all__'
     template_name = 'finance/online_payment/delete.html'
@@ -291,8 +291,9 @@ class OnlinePaymentPlatformDeleteView(LoginRequiredMixin, PermissionRequiredMixi
         return context
 
 
-class TrainingPaymentCreateView(SuccessMessageMixin, CreateView):
+class TrainingPaymentCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = TrainingPaymentModel
+    permission_required = 'finance.add_trainingpaymentmodel'
     form_class = TrainingPaymentForm
     success_message = 'Training Payment Successful'
     template_name = 'finance/training_payment/create.html'
@@ -309,8 +310,9 @@ class TrainingPaymentCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class TrainingPaymentListView(ListView):
+class TrainingPaymentListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = TrainingPaymentModel
+    permission_required = 'finance.view_trainingpaymentmodel'
     fields = '__all__'
     template_name = 'finance/training_payment/index.html'
     context_object_name = "training_payment_list"
@@ -327,8 +329,9 @@ class TrainingPaymentListView(ListView):
         return context
 
 
-class TrainingPaymentDetailView(DetailView):
+class TrainingPaymentDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = TrainingPaymentModel
+    permission_required = 'finance.view_trainingpaymentmodel'
     fields = '__all__'
     template_name = 'finance/training_payment/detail.html'
     context_object_name = "training_payment"
@@ -339,8 +342,9 @@ class TrainingPaymentDetailView(DetailView):
         return context
 
 
-class TrainingPaymentUpdateView(SuccessMessageMixin, UpdateView):
+class TrainingPaymentUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = TrainingPaymentModel
+    permission_required = 'finance.change_trainingpaymentmodel'
     form_class = TrainingPaymentEditForm
     success_message = 'Training Payment Updated Successfully'
     template_name = 'finance/training_payment/index.html'
@@ -355,8 +359,9 @@ class TrainingPaymentUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class TrainingPaymentDeleteView(SuccessMessageMixin, DeleteView):
+class TrainingPaymentDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = TrainingPaymentModel
+    permission_required = 'finance.delete_trainingpaymentmodel'
     success_message = 'Training Payment Deleted Successfully'
     fields = '__all__'
     template_name = 'finance/training_payment/delete.html'
@@ -370,8 +375,9 @@ class TrainingPaymentDeleteView(SuccessMessageMixin, DeleteView):
         return context
 
 
-class TrainingPaymentSelectStudentView(SuccessMessageMixin, TemplateView):
+class TrainingPaymentSelectStudentView(LoginRequiredMixin, PermissionRequiredMixin,SuccessMessageMixin, TemplateView):
     template_name = 'finance/training_payment/select_student.html'
+    permission_required = 'finance.add_trainingpaymentmodel'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -391,5 +397,5 @@ def fee_get_class_students_by_reg_number(request):
         {} </li>""".format(student.id, full_name)
     if result == '':
         result += """<li class='list-group-item d-flex justify-content-between align-items-center bg-danger text-white'>
-        No Student in with inputed Registration Number</li>"""
+        No Student in with inputted Registration Number</li>"""
     return HttpResponse(result)

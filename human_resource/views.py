@@ -9,7 +9,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core import serializers
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -79,8 +79,9 @@ class HRSettingUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMe
         return context
 
 
-class PositionCreateView(SuccessMessageMixin, CreateView):
+class PositionCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = Group
+    permission_required = 'auth.add_group'
     form_class = PositionForm
     template_name = 'human_resource/position/list.html'
     success_message = 'Position Added Successfully'
@@ -93,8 +94,9 @@ class PositionCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-class PositionListView(ListView):
+class PositionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Group
+    permission_required = 'auth.view_group'
     fields = '__all__'
     template_name = 'human_resource/position/index.html'
     context_object_name = "position_list"
@@ -108,8 +110,9 @@ class PositionListView(ListView):
         return context
 
 
-class PositionDetailView(DetailView):
+class PositionDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Group
+    permission_required = 'auth.view_group'
     fields = '__all__'
     template_name = 'human_resource/position/detail.html'
     context_object_name = "position"
@@ -119,8 +122,9 @@ class PositionDetailView(DetailView):
         return context
 
 
-class PositionUpdateView(SuccessMessageMixin, UpdateView):
+class PositionUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Group
+    permission_required = 'auth.change_group'
     form_class = PositionForm
     template_name = 'human_resource/position/index.html'
     success_message = 'Position Successfully Updated'
@@ -135,8 +139,9 @@ class PositionUpdateView(SuccessMessageMixin, UpdateView):
         return context
 
 
-class PositionPermissionView(SuccessMessageMixin, UpdateView):
+class PositionPermissionView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Group
+    permission_required = 'auth.change_group'
     form_class = PositionForm
     template_name = 'human_resource/position/permission.html'
     success_message = 'Position Permission Successfully Updated'
@@ -151,6 +156,8 @@ class PositionPermissionView(SuccessMessageMixin, UpdateView):
         return context
 
 
+@login_required
+@permission_required('auth.change_group')
 def position_permission_view(request, pk):
     position = Group.objects.get(pk=pk)
     if request.method == 'POST':
@@ -172,8 +179,9 @@ def position_permission_view(request, pk):
     return render(request, 'human_resource/position/permission.html', context)
 
 
-class PositionDeleteView(DeleteView):
+class PositionDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Group
+    permission_required = 'auth.delete_group'
     fields = '__all__'
     template_name = 'human_resource/position/delete.html'
     context_object_name = "position"

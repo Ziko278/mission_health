@@ -14,6 +14,7 @@ from django.urls import reverse
 # from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from communication.models import RecentActivityModel
+from finance.models import FinanceSettingModel
 from training.models import *
 from training.forms import *
 
@@ -36,7 +37,7 @@ class CourseCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessa
 
 class CourseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = CourseModel
-    permission_required = 'training.add_coursemodel'
+    permission_required = 'training.view_coursemodel'
     fields = '__all__'
     template_name = 'training/course/index.html'
     context_object_name = "course_list"
@@ -50,11 +51,27 @@ class CourseListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return context
 
 
+class CourseDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    model = CourseModel
+    permission_required = 'training.view_coursemodel'
+    template_name = 'training/course/detail.html'
+    context_object_name = 'course'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['lesson_list'] = LessonModel.objects.filter(course=self.object).order_by('order')
+        context['default_currency'] = FinanceSettingModel.objects.first().default_currency.symbol
+        context['active_student'] = EnrollmentModel.objects.filter(course=self.object).exclude(
+            status='2').count()
+
+        return context
+
+
 class CourseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = CourseModel
-    permission_required = 'training.add_coursemodel'
+    permission_required = 'training.change_coursemodel'
     form_class = CourseForm
-    template_name = 'training/course/index.html'
+    template_name = 'training/course/detail.html'
     success_message = 'Course Successfully Updated'
 
     def get_success_url(self):
@@ -67,7 +84,7 @@ class CourseUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessa
 
 class CourseDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = CourseModel
-    permission_required = 'training.add_coursemodel'
+    permission_required = 'training.delete_coursemodel'
     fields = '__all__'
     template_name = 'training/course/delete.html'
     context_object_name = "course"
@@ -158,7 +175,7 @@ class LessonDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessa
 
 class LessonMaterialCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = LessonMaterialModel
-    permission_required = 'training.add_lessonmaterialmodel'
+    permission_required = 'training.add_lessonmodel'
     form_class = LessonMaterialForm
     template_name = 'training/lesson_material/create.html'
     success_message = 'Lesson Material Successfully Added'
@@ -174,7 +191,7 @@ class LessonMaterialCreateView(LoginRequiredMixin, PermissionRequiredMixin, Succ
 
 class LessonMaterialNoteCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
     model = LessonMaterialModel
-    permission_required = 'training.add_lessonmaterialmodel'
+    permission_required = 'training.add_lessonmodel'
     form_class = LessonMaterialForm
     template_name = 'training/lesson_material/create_note.html'
     success_message = 'Lesson Material Successfully Added'
@@ -190,7 +207,7 @@ class LessonMaterialNoteCreateView(LoginRequiredMixin, PermissionRequiredMixin, 
 
 class LessonMaterialListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = LessonMaterialModel
-    permission_required = 'training.view_lessonmaterialmodel'
+    permission_required = 'training.view_lessonmodel'
     fields = '__all__'
     template_name = 'training/lesson_material/index.html'
     context_object_name = "lesson_material_list"
@@ -205,7 +222,7 @@ class LessonMaterialListView(LoginRequiredMixin, PermissionRequiredMixin, ListVi
 
 class LessonMaterialDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = LessonMaterialModel
-    permission_required = 'training.view_lessonmaterialmodel'
+    permission_required = 'training.view_lessonmodel'
     fields = '__all__'
     template_name = 'training/lesson_material/detail.html'
     context_object_name = "lesson_material"
@@ -217,7 +234,7 @@ class LessonMaterialDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
 
 class LessonMaterialUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = LessonMaterialModel
-    permission_required = 'training.change_lessonmaterialmodel'
+    permission_required = 'training.change_lessonmodel'
     form_class = LessonMaterialForm
     template_name = 'training/lesson_material/edit.html'
     success_message = 'Lesson Material Successfully Updated'
@@ -232,14 +249,14 @@ class LessonMaterialUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Succ
 
 class LessonMaterialDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
     model = LessonMaterialModel
-    permission_required = 'training.delete_lessonmaterialmodel'
+    permission_required = 'training.delete_lessonmodel'
     fields = '__all__'
     template_name = 'training/lesson_material/delete.html'
     context_object_name = "lesson_material"
     success_message = 'Lesson Material Successfully Deleted'
 
     def get_success_url(self):
-        return reverse('lesson_material_index')
+        return reverse('lesson_detail', kwargs={'pk': self.object.lesson.id})
 
 
 class LiveSessionCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
