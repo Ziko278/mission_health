@@ -12,7 +12,7 @@ def get_amount_paid(enrollment, student_id):
     student = StudentsModel.objects.get(pk=student_id)
     cohort = student.cohort
 
-    payments = TrainingPaymentModel.objects.filter(enrollment=enrollment, student=student, cohort=cohort,
+    payments = TrainingPaymentModel.objects.filter(student=student, cohort=cohort,
                                                    status='confirmed')
     amount_paid = payments.aggregate(total_sum=Sum('amount_paid'))['total_sum']
 
