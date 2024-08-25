@@ -284,7 +284,7 @@ class OnlinePaymentPlatformDeleteView(LoginRequiredMixin, PermissionRequiredMixi
     context_object_name = "online_payment"
 
     def get_success_url(self):
-        return reverse("online_payment_index")
+        return reverse("student_fee_payment")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -318,11 +318,11 @@ class TrainingPaymentListView(LoginRequiredMixin, PermissionRequiredMixin, ListV
     context_object_name = "training_payment_list"
 
     def get_queryset(self):
-        return TrainingPaymentModel.objects.all()
+        return TrainingPaymentModel.objects.all().order_by('id').reverse()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['training_payment_list'] = TrainingPaymentModel.objects.all()
+
         context['cohort_list'] = CohortModel.objects.all()
         context['form'] = TrainingPaymentForm
 
@@ -340,6 +340,18 @@ class TrainingPaymentDetailView(LoginRequiredMixin, PermissionRequiredMixin, Det
         context = super().get_context_data(**kwargs)
         context['amount_in_word'] = num2words(self.object.amount_paid)
         return context
+
+
+def update_payment_detail(request, pk):
+    if request.method == 'POST':
+        payment = TrainingPaymentModel.objects.get(pk=pk)
+        status = request.POST.get('status')
+        if status:
+            payment.status = status
+            payment.save()
+            messages.success(request, 'Payment Status updated to {}'.format(status))
+
+        return redirect(reverse('training_payment_detail', kwargs={'pk':pk}))
 
 
 class TrainingPaymentUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):

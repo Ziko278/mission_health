@@ -33,7 +33,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body pt-3" style="overflow-x:auto">
-                <h5 class="card-title">Fee Payments for {{ session }} Session - {{ term }}</h5>
+                <h5 class="card-title">Fee Payments</h5>
                 <table class="table table-bordered datatable" style="font-size:14px">
                     <thead>
                         <tr>
@@ -54,7 +54,7 @@
                                 <td scope="row">{{ payment.payment_method|title }}</td>
                                 <td scope="row" {% if payment.status == 'pending' %} class='text-warning' {% else %} class='text-success' {% endif %}>{{ payment.status|title }}</td>
                                 <td scope="row" class="text-center">
-                                    <a title="View Fee Payment Detail" style="font-size:12px" class="btn btn-primary" {% if payment.status != "pending" %} href="{% url 'training_payment_detail' payment.id %}" {% endif %}><i class="bi bi-eye"></i> </a>
+                                    <a title="View Fee Payment Detail" style="font-size:12px" class="btn btn-primary" href="{% url 'training_payment_detail' payment.id %}"><i class="bi bi-eye"></i> </a>
                                  </td>
                             </tr>
                         {% endfor %}

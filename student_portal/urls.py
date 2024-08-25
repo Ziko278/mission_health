@@ -31,6 +31,7 @@ urlpatterns = [
     path('live-classes', StudentLiveClassView.as_view(), name='student_live_class_index'),
 
     path('fees', StudentFeeDashboardView.as_view(), name='student_fee_dashboard'),
+    path('fees/payment/create', StudentPaymentCreateView.as_view(), name='student_fee_create'),
     path('fees/payments', StudentPaymentListView.as_view(), name='student_fee_payment'),
     path('fees/payments/<int:pk>', StudentPaymentDetailView.as_view(), name='student_payment_detail'),
     path('fees/select-payment-method', StudentSelectPaymentMethodView.as_view(), name='select_payment_method'),

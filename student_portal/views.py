@@ -41,6 +41,7 @@ from admin_site.models import CountryModel, SiteInfoModel
 from communication.forms import StudentMessageForm
 from communication.models import CommunicationSettingModel, StudentMessageModel
 from communication.views import account_activation_token, send_custom_email
+from finance.forms import TrainingPaymentForm
 from finance.models import FinanceSettingModel, TrainingPaymentModel, BankAccountModel, OnlinePaymentPlatformModel, \
     CurrencyModel
 from student.forms import StudentForm, StudentProfileForm
@@ -421,6 +422,24 @@ class StudentSelectPaymentMethodView(LoginRequiredMixin, TemplateView):
         context['student'] = student
         context['default_currency'] = FinanceSettingModel.objects.first().default_currency
 
+        return context
+
+
+class StudentPaymentCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = TrainingPaymentModel
+    form_class = TrainingPaymentForm
+    success_message = 'Payment uploaded, Please wait form confirmation'
+    template_name = 'student_portal/fee/create.html'
+
+    def get_success_url(self):
+        return reverse('student_fee_payment')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        student = StudentProfileModel.objects.get(user=self.request.user).student
+        context['student'] = student
+        context['course_list'] = CourseModel.objects.all().order_by('name')
+        context['payment_list'] = TrainingPaymentModel.objects.filter(student__id=student.id, cohort=student.cohort)
         return context
 
 

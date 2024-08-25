@@ -52,6 +52,10 @@
                 Cohort: {{ training_payment.cohort|upper }}
                 <img class="rounded-circle" style="margin-top:-30px;display:inline;float:right;width:100px;height:100px;border-radius:5px;" {% if training_payment.student.image %} src="{{ training_payment.student.image.url }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %} /></h4>
             <p>
+                {% if training_payment.status == 'pending' %}
+                <button type="button" data-bs-toggle="modal" data-bs-target="#confirm" title="Confirm Payment" class="btn btn-success"><i class="bi bi-check"></i> </button>
+                <button type="button" data-bs-toggle="modal" data-bs-target="#decline" title="Decline Payment" class="btn btn-danger"><i class="bi bi-x"></i> </button>
+                {% endif %}
                 <button type="button" title="Print Detailed Receipt" id="download-detail-receipt-button" class="btn btn-primary"><i class="bi bi-printer-fill"></i> </button>
                 <button type="button" title="Print Receipt Summary" id="download-summary-receipt-button" data-bs-toggle="modal" data-bs-target="#bulk-payment" class="btn btn-primary"><i class="bi bi-printer"></i> </button>
 
@@ -249,6 +253,59 @@
 </div>
 
 
+<form method="POST" action="{% url 'update_payment_detail' training_payment.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="status" value="confirmed">
+    <div class="modal fade" id="confirm" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fee Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+                    <div class="form-floating col-12">
+                        <h3 class="te">You are about to confirm fee payment of {{ amount_in_word|title }} {{ training_payment.currency|title }}</h3>
+                    </div><br />
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<form method="POST" action="{% url 'update_payment_detail' training_payment.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="status" value="declined">
+    <div class="modal fade" id="decline" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fee Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+                    <div class="form-floating col-12">
+                        <h3 class="te">You are about to decline fee payment of {{ amount_in_word|title }} {{ training_payment.currency|title }}</h3>
+                    </div><br />
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 <script src="{% static 'admin_dashboard/scripts/jquery.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -291,3 +348,4 @@
     })
 </script>
 {%endblock %}
+

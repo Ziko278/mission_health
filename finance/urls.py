@@ -26,6 +26,7 @@ urlpatterns = [
     path('training/payment/<int:student_pk>/create', TrainingPaymentCreateView.as_view(), name='training_payment_create'),
     path('training/payment/index', TrainingPaymentListView.as_view(), name='training_payment_index'),
     path('training/payment/<int:pk>/detail', TrainingPaymentDetailView.as_view(), name='training_payment_detail'),
+    path('training/payment/<int:pk>/confirm', update_payment_detail, name='update_payment_detail'),
 
     path('fee/payment/get-student-by-reg-number', fee_get_class_students_by_reg_number,
          name='fee_get_class_students_by_reg_number'),
