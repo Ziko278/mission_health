@@ -18,7 +18,7 @@ def can_view_course(course, student_id):
 
     enrollment = EnrollmentModel.objects.filter(student=student, course=course, status='active').first()
     #
-    payments = TrainingPaymentModel.objects.filter(enrollment=enrollment, student=student, cohort=cohort,status='confirmed')
+    payments = TrainingPaymentModel.objects.filter(student=student, cohort=cohort,status='confirmed')
     amount_paid = payments.aggregate(total_sum=Sum('amount_paid'))['total_sum']
 
     if not amount_paid:
