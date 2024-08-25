@@ -1,0 +1,37 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <h1 class="card-title px-4">Course Enrollment</h1>
+        <div class="col-12">
+            <div class="card info-card sales-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center pt-3">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="bi bi-calendar2-fill"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6>{{ course|title }}</h6>
+                            <span class="text small pt-1 fw-bold">Hi {{ student|title }}! You are about to enroll for {{ course|title }}</span> <span class="text-muted small pt-2 ps-1"></span>
+                            <br />
+                            <span class="text small pt-1 fw-bold">You will have to pay course fee to access course materials</span> <span class="text-muted small pt-2 ps-1"></span>
+                            <h6>Fee: {{ default_currency }}{{ course.amount|floatformat|intcomma }}</h6>
+
+                        </div>
+
+                    </div>
+                    <form action="" method="post" class="ps-3 pt-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="student" value="{{ student.id }}">
+                        <input type="hidden" name="course" value="{{ course.id }}">
+                        <input type="submit" value="Proceed" class="btn btn-outline-primary">
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

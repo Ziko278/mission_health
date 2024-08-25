@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+{% load static %}
+{% load humanize %}
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>{{ site_info.name|upper }} / Student Registration </title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'admin_site/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'admin_site/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'admin_site/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+
+  <link href="{% static 'admin_site/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'admin_site/styles/style.css' %}" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+  <main>
+    <div class="container">
+
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-10 d-flex flex-column align-items-center justify-content-center">
+
+              <div class="card mb-3">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-center pt-4">
+                        <a href="{% url 'homepage' %}" class="logo d-flex align-items-center w-auto">
+                          <img src="{{ site_info.logo.url }}" alt="">
+                        </a>
+                      </div><!-- End Logo -->
+
+                  {% if registration_done %}
+                  <div class=" pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Account Created Successfully</h5>
+                    <p class="text-center">Congratulations!!! Your account has been successfully created. Please check your email address for your username and default password</p>
+                    <p class="text-center">Click on the account confirmation link in the email, then proceed to login with your account</p>
+                    <div class="d-flex justify-content-center pt-4">
+                      <a href="{% url 'student_login' %}" class="btn btn-primary m-1">Login</a>
+                      <a href="{% url 'homepage' %}" class="btn btn-primary m-1">Home Page</a>
+                    </div>
+                  </div>
+                  {% endif %}
+
+                  {% if activation_done %}
+                  <div class=" pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Account Created Successfully</h5>
+                    <p class="text-center">Congratulations!!! Your account has been successfully Activated. Proceed to login</p>
+                    <p class="text-center">You are adviced to change your default password</p>
+                    <div class="d-flex justify-content-center pt-4">
+                      <a href="{% url 'student_login' %}" class="btn btn-primary m-1">Login</a>
+                      <a href="{% url 'homepage' %}" class="btn btn-primary m-1">Home Page</a>
+                    </div>
+                  </div>
+                  {% endif %}
+
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+      </section>
+
+    </div>
+  </main><!-- End #main -->
+
+</body>
+
+</html>

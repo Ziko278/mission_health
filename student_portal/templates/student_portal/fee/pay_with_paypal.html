@@ -1,0 +1,64 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block 'main' %}
+<section class="container">
+    <div class="card">
+        <div class="card-body">
+            <div class="" data-aos="fade-up" data-aos-delay="100">
+                <h4 class="card-title" style="font-family:courier">
+                    <b>Fee Payment with PayPal</b>
+                </h4>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <h4 class="card-title" style="font-family:courier">
+                            <b>You are about to pay the sum of {{ amount_in_word|title }} {{ default_currency|title }}
+                                ({{default_currency.symbol}}{{amount|floatformat|intcomma}}) as fees for {{ enrollment.course|title }} </b>
+                        </h4>
+                        <input type="hidden" id="reference" name="reference" value="{{ enrollment.id }}" />
+                        <input type="hidden" id="amount" required="required" value="{{ amount|floatformat }}">
+                        <br />
+                    </div>
+                    <div class="form-group">
+                        <div id="paypal-button-container"></div>
+                    </div>
+                </form>
+            </div>
+        </div><!-- End Service Item -->
+    </div>
+</section><!-- End Featured Services Section -->
+
+<script src="https://www.sandbox.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
+<script>
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '{{ amount|floatformat }}', // Amount to be paid
+                        currency: 'USD'
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                console.log('Payment completed:', details);
+                let reference = document.getElementById('reference').value;
+                window.location = '{{ callback_url }}' + '?reference=' + reference + '&paypal_order_id=' + details.id + '&status=success'+ '&paypal_id=' +{{paypal_id}};
+            });
+        },
+        onCancel: function(data) {
+            console.log('Payment cancelled:', data);
+            let reference = document.getElementById('reference').value;
+            window.location = '{{ callback_url }}' + '?reference=' + reference + '&status=cancelled';
+        },
+        onError: function(err) {
+            console.error('Payment error:', err);
+            let reference = document.getElementById('reference').value;
+            window.location = '{{ callback_url }}' + '?reference=' + reference + '&status=error';
+        }
+    }).render('#paypal-button-container');
+</script>
+{% endblock %}

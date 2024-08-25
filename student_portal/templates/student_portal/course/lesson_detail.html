@@ -1,0 +1,136 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% load training_custom_filters %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card info-card sales-card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="ps-3">
+                                    <h6 class="fs-4">
+                                        <span class="fs-6">Course:</span>
+                                        <br>
+                                        {{ lesson.course|title }}
+                                    </h6>
+                                    <br>
+                                    <h6 class="fs-4">
+                                        <span class="fs-6">Lesson:</span>
+                                        <br>
+                                        {{ lesson|title }}
+                                    </h6>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="ps-3">
+                                    {% if lesson|lesson_progress_percent:student.id > 0 %}
+                                     <canvas id="pieChart" style="height: 100px;"></canvas>
+                                    <h1 class="card-title">Lesson Progress</h1>
+                                    {% endif %}
+                                  <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                      new Chart(document.querySelector('#pieChart'), {
+                                        type: 'pie',
+                                        data: {
+
+                                          datasets: [{
+                                            label: 'My First Dataset',
+                                            data: [{{lesson|lesson_progress_percent:student.id}}, {{lesson|lesson_progress_percent_left:student.id}}],
+                                            backgroundColor: [
+                                              'rgb(75, 192, 192)',
+                                              'rgb(255, 255, 255)',
+
+                                            ],
+                                            hoverOffset: 4
+                                          }]
+                                        }
+                                      });
+                                    });
+                                  </script>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="card">
+        <div class="card-body" style="overflow-x:auto">
+            <h5 class="card-title">Course Materials </h5>
+            {% if not lesson.course|can_view_course:student.id %}
+            <h5 class="card-title text-danger">You have to pay your dues to access courses  </h5>
+            {% endif %}
+            <table class="table table-bordered table-responsive">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" style="min-width:300px">Title</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" style="min-width:120px" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if lesson.materials.all %}
+                {% for material in lesson.materials.all %}
+                <tr>
+                    <th scope="row"><a href="#">{{ forloop.counter }} </a></th>
+                    <td title="{{lesson.description}}">{{ material.title|title }}</td>
+                    <td class="text-center">{% if material|lesson_material_progress:student.id %} <i class="text-success fs-3 bi bi-check"></i> {% endif %}</td>
+
+                    <td class="text-center">
+                        <a href="{% url 'student_lesson_material_detail' material.id %}" title="View Lesson Material" class="btn btn-outline-primary {% if not lesson.course|can_view_course:student.id %} disabled {% endif %}"><i class="bi bi-eye"></i></a>
+                        <button type="button" class="btn btn-success" {% if not  lesson.course|can_view_course:student.id %} disabled {% endif %} data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}" title="Mark Material as Completed"><i class="bi bi-check"></i></button>
+
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
+            {% if not lesson.materials.all %}
+                <h3 class="text-center">No Available Lesson Material at the moment</h3>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% for material in lesson.materials.all %}
+<form method="POST" action="{% url 'lesson_material_completed' material.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal fade" id="edit{{ forloop.counter }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mark Material completed</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h1 class="card-title">
+                        You are about to mark <b><i>{{ material|title }}</i></b> as completed
+                    </h1>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endfor %}
+
+{% endblock %}

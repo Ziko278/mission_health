@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+{% load static %}
+{% if 'myadmin' in request.path|lower %}
+	<h1>PAGE NOT FOUND</h1>
+	<a href="{% url 'admin_dashboard' %}">Home</a>
+{% elif 'student' in request.path|lower and 'myadmin' not in request.path|lower %}
+	<h1>PAGE NOT FOUND</h1>
+	<a href="{% url 'student_dashboard' %}">Home</a>
+{% else %}
+	<h1>PAGE NOT FOUND</h1>
+	<a href="{% url 'homepage' %}">Home</a>
+{% endif %}
+</html>

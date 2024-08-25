@@ -1,0 +1,185 @@
+{% extends 'admin_site/layout.html' %}
+{% block 'main' %}
+{% load static %}
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+        <div class="filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                    <h6>Action</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="#">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" style="width:100%" data-bs-target="#verticalycentered">Add Cohort</button>
+                </a></li>
+            </ul>
+        </div>
+
+        <div class="card-body">
+            <h5 class="card-title">List of Cohorts </h5>
+            {% if form.errors %}
+                <h5 class="text-danger">{{form.errors}}</h5>
+            {% endif %}
+            <table class="table table-borderless datatable">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Cohort</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if cohort_list %}
+                {% for cohort in cohort_list %}
+                <tr>
+                    <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
+                    <td title="created by {{ cohort.user|lower }} at {{ cohort.created_at|date }} {% if cohort.updated_by %} {% endif %}">
+                        {{ cohort.name|upper }}
+                    </td>
+                    <td>{{ cohort.cohort_id|upper }}</td>
+                    <td>{{ cohort.start_date|date }}</td>
+                    <td>{{ cohort.end_date|date }}</td>
+                    <td>
+                        {% if cohort.status|lower == '0' %} <span class="text-warning">Not Commenced</span>
+                        {% elif cohort.status|lower == '1' %} <span class="text-success">In Progress</span>
+                        {% elif cohort.status|lower == '2' %} <span class="text-danger">Concluded</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                        <a href="{% url 'cohort_detail' cohort.id %}" title="Cohort Detail" class="btn btn-primary"><i class="bi bi-eye"></i></a>
+                        <button type="button" title="Edit Cohort" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
+                        <a href="{% url 'cohort_delete' cohort.id %}" title="Delete Cohort" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
+            {% if not cohort_list %}
+                <h3 class="text-center">No Cohort Added Yet</h3>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<form method="POST" action="{% url 'cohort_create' %}">
+    {% csrf_token %}
+    <div class="modal fade" id="verticalycentered" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Cohort</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+                    <div class="form-floating col-6">
+                        {{ form.name }}
+                        <input type="hidden" name="user" value="{{ user.id }}" />
+                        <label for="floatingName">Cohort <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+                        {{ form.cohort_id }}
+                        <label for="floatingName">Cohort ID <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+
+                    <div class="form-floating col-6">
+                        {{ form.start_date }}
+                        <label for="floatingName">Start Date<span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+
+                        {{ form.end_date }}
+                        <label for="floatingName">End Date<span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+                        {{ form.status }}
+                        <label for="floatingName">Status<span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% for cohort in cohort_list %}
+<form method="POST" action="{% url 'cohort_edit' cohort.id %}">
+    {% csrf_token %}
+    <div class="modal fade" id="edit{{ forloop.counter }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Cohort</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+                    <input type="hidden" name="updated_by" value="{{ user.id }}" />
+                    <div class="form-floating col-6">
+                        <input type="text" name="name" value="{{ cohort.name|lower }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Cohort <span style="color:red"><b>*</b></span></label>
+                    </div><br />
+
+                     <div class="form-floating col-6">
+                        <input type="text" name="cohort_id" value="{{ cohort.cohort_id|lower }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Cohort ID <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <input type="date" name="start_date" value="{{ cohort.start_date|date:'Y-m-d' }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Start Date <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <input type="date" name="end_date"  value="{{ cohort.end_date|date:'Y-m-d' }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">End Date <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <select name="status" required class="form-control">
+                            <option value="0" {% if cohort.status|lower == '0' %} selected {% endif %}>Not Commenced</option>
+                            <option value="1" {% if cohort.status|lower == '1' %} selected {% endif %}>In Progress</option>
+                            <option value="2" {% if cohort.status|lower == '2' %} selected {% endif %}>Concluded</option>
+                        </select>
+                        <label for="floatingName">Status <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endfor %}
+
+
+{% endblock %}

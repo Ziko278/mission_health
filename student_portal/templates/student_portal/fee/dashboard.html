@@ -1,0 +1,55 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% load fee_custom_filters %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <h1 class="card-title px-4">Fee Dashboard</h1>
+        {% if enrollment_list %}
+            {% for enrollment in enrollment_list %}
+            <div class="col-12 col-md-12">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                        <h5 class="card-title"> From {{ enrollment.cohort.start_date|date }}  to {{ enrollment.cohort.end_date|date }} <span> </span></h5>
+                        <div class="d-flex align-items-center">
+                            <div class="ps-3">
+                                <h6 class="fs-4">{{ enrollment.course }}</h6>
+                                <br/>
+                                <h6 class="fs-3">Fee: {{ default_currency }}{{ enrollment.amount|floatformat|intcomma }}</h6>
+                                <h6 class="fs-3">Paid: {{ default_currency }}{{ enrollment|get_amount_paid:student.id|floatformat|intcomma }} </h6>
+
+                            </div>
+
+                        </div>
+                        {% if enrollment|get_amount_paid:student.id|floatformat < enrollment.amount|floatformat %}
+                        <a href="{% url 'student_payment_amount' enrollment.id %}" class="btn btn-outline-primary mt-3">Make Payment</a>
+                        {% else %}
+                        <br>
+                            <span class="text-success m-4">PAYMENT COMPLETE</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center pt-4">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-x text-danger"></i>
+                            </div>
+                            <div class="ps-3">
+                                <h6>You have no active course</h6>
+                                <a href="{% url 'student_enroll_dashboard' %}" class="btn btn-outline-primary mt-3">Enroll Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

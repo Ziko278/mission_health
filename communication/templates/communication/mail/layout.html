@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>{{ site_info }}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link href="{% static 'admin_site/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'admin_site/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+
+  <link href="{% static 'admin_site/vendor/simple-datatables/style.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'admin_site/styles/style.css' %}" rel="stylesheet">
+</head>
+
+<body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header d-flex align-items-center fixed-top">
+        <div class=" d-flex align-items-center justify-content-between">
+            <a href="{% url 'homepage' %}" class="logo d-flex align-items-center">
+                <!-- Uncomment the line below if you also wish to use an image logo -->
+                 <img src="{{ site_info.logo.url }}" alt="">
+                <h1>{{site_info|upper}}</h1>
+            </a>
+
+        </div>
+    </header><!-- End Header -->
+    <!-- End Header -->
+
+    <main id="main">
+        {% block 'main' %}
+
+        {%endblock %}
+    </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-5 col-md-12 footer-info">
+                    <a href="index.html" class="logo d-flex align-items-center">
+                        <span>{{site_info.name|title}}</span>
+                    </a>
+                    <p class="fs-6">{{site_info.name|title}} is a third party training academy that specializes in the training of students for nursing exams in the USA.</p>
+<!--                    <div class="social-links d-flex mt-12 align-items-center" style="text-align:center">-->
+<!--                        <a href="#" style="float:center" class="twitter"><i class="bi bi-twitter"></i></a>-->
+<!--                        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>-->
+<!--                        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>-->
+<!--                        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>-->
+<!--                    </div>-->
+                </div>
+
+                <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start ps-6">
+                    <h4>Contact Us</h4>
+                    <p>
+                        {{ site_info.address|title }} <br>
+                        <strong>Phone:</strong> {{ site_info.mobile_1 }} <br>
+                        <strong>Email:</strong> {{ site_info.emai|lower }}<br>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </footer><!-- End Footer -->
+
+
+
+    <!-- Vendor JS Files -->
+    <script src="{% static 'home/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- Template Main JS File -->
+    <script src="{% static 'home/scripts/main.js' %}"></script>
+
+</body>
+</html>

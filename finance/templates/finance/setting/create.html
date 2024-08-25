@@ -1,0 +1,69 @@
+{% extends 'admin_site/layout.html' %}
+{% load static %}
+{% block 'main' %}
+
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- row -->
+    <div class="row">
+
+        <div class="col-12">
+            <div class="card profile-card card-bx m-b30">
+                <div class="card-header">
+                    <h6 class="title">Finance Setting</h6>
+                </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6 m-b30">
+                                <br>
+                                <label class="form-label">Default Currency</label>
+                                {{ form.default_currency }}
+                            </div>
+
+                            <div class="col-sm-6 m-b30">
+                                <br>
+                                <label class="form-label">Allow Part Payment</label>
+                                <br>
+                                {{ form.allow_part_payment }}
+                            </div>
+
+                             <div class="col-sm-6 m-b30">
+                                <br>
+                                <label class="form-label">Minimum Payment (%)</label>
+                                <br>
+                                {{ form.minimum_payment }}
+                            </div>
+
+                            <div class="col-sm-6 m-b30">
+                                <br>
+                                <label class="form-label">Minimum Payment to Access Portal</label>
+                                <br>
+                                {{ form.current_access_payment }}
+                            </div>
+
+                            <div class="col-sm-6 m-b30">
+                                <br>
+                                <label class="form-label">Auto Confirm Online Payment</label>
+                                <br>
+                                {{ form.auto_confirm_online_payment }}
+                            </div>
+
+
+
+
+
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input class="btn btn-primary" type="submit" value="SAVE" />
+
+                    </div>
+
+            </div>
+        </div>
+    </div>
+
+</form>
+{% endblock %}

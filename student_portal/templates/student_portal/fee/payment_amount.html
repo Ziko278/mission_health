@@ -1,0 +1,65 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% load fee_custom_filters %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <h1 class="card-title px-4">Fee Payment</h1>
+        <div class="col-12">
+            <div class="card info-card sales-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center pt-4">
+                        <div class="ps-3">
+                            <h6>Student: <span style="font-family:courier">{{ student|title }}</span></h6>
+                            <br>
+                            <h6 class="fs-5">Course: {{ enrollment.course }}</h6>
+                            <br>
+                            <h6 class="fs-5">Total Fee: {{ default_currency }}{{ enrollment.amount|floatformat|intcomma }}</h6>
+                            <br>
+                            <h6 class="fs-5">Amount Paid: {{ default_currency }}{{ amount_paid|floatformat|intcomma }}</h6>
+                            <br>
+                            <h6 class="fs-5">Balance: {{ default_currency }}{{ balance|floatformat|intcomma }}</h6>
+                            <br>
+                            <h6 class="fs-5">Status:
+                                {% if amount_paid == 0 %}
+                                <span class="text-danger">NO PAYMENT</span>
+                                {% elif amount_paid > 0 and balance > 0 %}
+                                <span class="text-warning">PART PAYMENT MADE</span>
+                                {% elif amount_paid >= enrollment.amount  %}
+                                <span class="text-success">FULL PAYMENT</span>
+                                {% endif %}
+                            </h6>
+
+                            {% if amount_paid < enrollment.amount  %}
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <div class="col-md-6">
+                                    <br>
+                                    <label for="yourUsername" class="form-label"><b>Enter Amount to Pay</b></label>
+                                  <div class="input-group has-validation">
+                                    <span class="input-group-text fs-4" style="min-width:50px">
+                                    {{ default_currency }}
+                                    </span>
+                                     <input type="number" class="form-control" required value="{{ balance|floatformat }}" min="{{minimum_payment|floatformat}}" max="{{ balance|floatformat }}"  name="amount" >
+                                    <div class="invalid-feedback">Please choose a username.</div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                  <input type="submit" value="Proceed" class="btn btn-outline-primary mt-4">
+                                </div>
+
+                            </form>
+
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

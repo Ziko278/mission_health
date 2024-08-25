@@ -1,0 +1,59 @@
+{% extends 'admin_site/layout.html' %}
+{% block 'main' %}
+{% load static %}
+{% load humanize %}
+
+<div class="col-12">
+    <div class="card" style="overflow-x:auto">
+        <div class="card-body">
+            {% if student_message %}
+            <h5 class="card-title">Reply {{ student_message.from_student|title }} Message </h5>
+            {% elif student %}
+            <h5 class="card-title">Send Message to {{ student|title }} </h5>
+            {% endif %}
+            {% if form.errors %}
+                <h5 class="text-danger">{{form.errors}}</h5>
+            {% endif %}
+           <form method="POST" action="">
+                {% csrf_token %}
+                <div class="modl" id="verticalycentered" tabindex="-1">
+                    <div class="modal-dialo mdal-lg">
+                        <div class="modal-cntent">
+
+                            <div class="modal-ody row">
+                                <br><br>
+                                <div class="form-floating col-12">
+
+                                    <input type="text" name="title" {% if student_message %} value="Reply to: {{ student_message.title }}" {% endif %} class="form-control" required>
+                                    <input type="hidden" name="user" value="{{ user.id }}" />
+                                    {% if student_message %}
+                                    <input type="hidden" value="{{student_message.from_student.id}}" name="to_student">
+                                    <input type="hidden" value="{{student_message.id}}" name="message_id">
+                                     {% elif student %}
+                                    <input type="hidden" value="{{student.id}}" name="to_student">
+                                    {% endif %}
+                                    <label for="floatingName">Title <span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+                                <div class="form-floating col-12" >
+                                    <textarea style="height:200px" name="message" required placeholder="Enter Message" maxlength="300" class="form-control"></textarea>
+                                    <label for="floatingName">Message <span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+
+                            </div>
+                            <div class="modal-footer" style="display:flex;justify-content:center">
+                                <br>
+                                <button type="submit" class="btn btn-primary">Send Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

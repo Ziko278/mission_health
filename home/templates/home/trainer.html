@@ -1,0 +1,69 @@
+{% extends 'home/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+<section class="pager-section">
+        <div class="pager-content">
+            <ul class="breadcrumbs has-link-effect">
+                <li><a href="{% url 'homepage' %}" itemprop="url">Home</a></li>
+                <li><span>Teachers</span></li></ul>
+            <h1>Trainers</h1>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none" class="shelly-shape">
+            <path class="shelly-shape--fill" d="M790.5,93.1c-59.3-5.3-116.8-18-192.6-50c-29.6-12.7-76.9-31-100.5-35.9c-23.6-4.9-52.6-7.8-75.5-5.3
+	    c-10.2,1.1-22.6,1.4-50.1,7.4c-27.2,6.3-58.2,16.6-79.4,24.7c-41.3,15.9-94.9,21.9-134,22.6C72,58.2,0,25.8,0,25.8V100h1000V65.3
+	    c0,0-51.5,19.4-106.2,25.7C839.5,97,814.1,95.2,790.5,93.1z"></path>
+        </svg>
+</section>
+
+<section class="page-content">
+	<div class="page-container">
+        <div class="page-content-markup">
+            <div data-elementor-type="wp-page" data-elementor-id="486" class="elementor elementor-486">
+                <section class="elementor-section elementor-top-section elementor-element elementor-element-a4cce53 elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="a4cce53" data-element_type="section">
+                    <div class="elementor-container elementor-column-gap-no">
+                        <div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-90ea1cc" data-id="90ea1cc" data-element_type="column">
+                            <div class="elementor-widget-wrap elementor-element-populated">
+                                <div class="elementor-element elementor-element-5b6b70d elementor-widget elementor-widget-shelly-theachers-feed" data-id="5b6b70d" data-element_type="widget" data-widget_type="shelly-theachers-feed.default">
+                                    <div class="elementor-widget-container">
+                                        <div class="teachers-section-grid">
+                                            <div class="teachers">
+                                                <div class="row">
+                                                    {% for trainer in trainer_list %}
+                                                    <div class="col-lg-3 col-md-6 col-sm-12">
+                                                        <div class="teacher">
+                                                            <div class="teacher-img">
+                                                                <a>
+                                                                    <img fetchpriority="high" style="height:300px" decoding="async" width="270" height="405" {% if trainer.image %} src="{{ trainer.image.url }}" {% else %} src="" {% endif %} class="w-100 wp-post-image" alt="" srcset="{{ trainer.image.url }}" sizes="(max-width: 270px) 100vw, 270px" />
+                                                                </a>
+                                                            </div>
+                                                            <div class="teacher-info">
+                                                                <h3>
+                                                                    <a>
+                                                                        {{ trainer|title }}
+                                                                    </a>
+                                                                </h3>
+                                                                <a href="" class="teacher-info--category">Trainer</a>
+                                                            </div>
+                                                        </div><!--teacher end-->
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+                </section>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+	</div>
+</section>
+
+
+
+
+{% endblock %}

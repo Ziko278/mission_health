@@ -1,0 +1,114 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% load fee_custom_filters %}
+{% load training_custom_filters %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card info-card sales-card">
+                <div class="card-body">
+                     <h5 class="card-title"><span> Date Enrolled: {{ enrollment.enrolled_at|date }}</span></h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="d-none d-md-flex card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-calendar2-fill"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 class="fs-4"><span>Course: </span>{{ enrollment.course|title }}</h6>
+                                    <span class="text small pt-1 fw-bold">From {{ enrollment.cohort.start_date|date }} to {{ enrollment.cohort.end_date|date }}</span> <span class="text-muted small pt-2 ps-1"></span>
+                                    <br><br>
+                                    <h6 class="fs-4">Fee: {{ default_currency }}{{ enrollment.amount|floatformat|intcomma }}</h6>
+                                    <h6 class="pt-3 fs-4"><span class=""> Fee Paid:</span>
+                                        {% if enrollment|get_amount_paid:student.id|floatformat == 0 %}
+                                        <span class="text-danger"> No Payment Made </span><br><br><a class="btn btn-outline-primary" href="{% url 'student_payment_amount' enrollment.id %}">Pay Now</a>
+                                        {% elif enrollment|get_amount_paid:student.id|floatformat > 0 and enrollment|get_amount_paid:student.id|floatformat < enrollment.amount|floatformat %}
+                                        {{ default_currency }} {{ fee_paid|floatformat|intcomma }} paid out of {{ default_currency }} {{ enrollment.amount|floatformat|intcomma }}
+                                        <br><br><a class="btn btn-outline-primary" href="{% url 'student_payment_amount' enrollment.id %}">Complete Payment</a>
+                                        {% elif enrollment|get_amount_paid:student.id|floatformat >= enrollment.amount|floatformat %}
+                                        <span class="text-success">Payment Completed</span>
+                                        {% endif %}
+                                    </h6>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="ps-3">
+                                    {% if enrollment.course|course_progress_percent:student.id > 0 %}
+                                     <canvas id="pieChart" style="height: 100px;"></canvas>
+                                    <h1 class="card-title">Course Progress</h1>
+                                    {% endif %}
+                                  <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                      new Chart(document.querySelector('#pieChart'), {
+                                        type: 'pie',
+                                        data: {
+
+                                          datasets: [{
+                                            label: 'My First Dataset',
+                                            data: [{{enrollment.course|course_progress_percent:student.id}}, {{enrollment.course|course_progress_percent_left:student.id}}],
+                                            backgroundColor: [
+                                              'rgb(75, 192, 192)',
+                                              'rgb(255, 255, 255)',
+
+                                            ],
+                                            hoverOffset: 4
+                                          }]
+                                        }
+                                      });
+                                    });
+                                  </script>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="card">
+        <div class="card-body" style="overflow-x:auto">
+            <h5 class="card-title">Lessons for {{ enrollment.course|title }} </h5>
+            <table class="table table-bordered table-responsive">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" style="min-width:250px">Title</th>
+                    <th scope="col">Progress</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if enrollment.course.lessons.all %}
+                {% for lesson in enrollment.course.lessons.all %}
+                <tr>
+                    <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
+                    <td title="{{lesson.description}}">{{ lesson.title|title }}</td>
+                    <th class="text-center {% if lesson|lesson_progress_percent:student.id < 30 %} text-danger {% elif lesson|lesson_progress_percent:student.id == 100 %} text-success {% else %} text-warning {% endif %} ">
+                        {{lesson|lesson_progress_percent:student.id}} %
+                    </th>
+
+                    <td class="text-center">
+                        <a href="{% url 'student_lesson_detail' lesson.id %}" title="View Lesson" class="btn btn-outline-primary"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
+            {% if not enrollment.course.lessons.all %}
+                <h3 class="text-center">No Available Lesson at the moment</h3>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends 'admin_site/layout.html' %}
+{% block 'main' %}
+{% load static %}
+{% load humanize %}
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+        <div class="filter">
+            <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                    <h6>Action</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="#">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" style="width:100%" data-bs-target="#verticalycentered">Add Currency</button>
+                </a></li>
+            </ul>
+        </div>
+
+        <div class="card-body">
+            <h5 class="card-title">List of Allowed Currencies </h5>
+            {% if form.errors %}
+                <h5 class="text-danger">{{form.errors}}</h5>
+            {% endif %}
+            <table class="table table-borderless datatable">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Currency</th>
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Country</th>
+                    <th scope="col">Exchange Rate</th>
+                    <th scope="col">Default</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if currency_list %}
+                {% for currency in currency_list %}
+                <tr>
+                    <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
+                    <td title="created by {{ currency.user|lower }} at {{ currency.created_at|date }}">
+                        {{ currency.name|upper }}
+                    </td>
+                    <td>{{ currency.symbol }}</td>
+                    <td>{{ currency.country|title }}</td>
+                    <td>{{ currency.exchange_rate|floatformat|intcomma }}</td>
+                    <td> {% if currency.is_default %} <span class="text-success"><i class="bi bi-check2-all"></i></span> {% endif %}</td>
+                    <td>
+                        {% if currency.status|lower == 'active' %} <span class="text-success">Active</span>
+                        {% elif currency.status|lower == 'inactive' %} <span class="text-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                        <button type="button" title="Edit Currency" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
+                        <a href="{% url 'currency_delete' currency.id %}" title="Delete Currency" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
+            {% if not currency_list %}
+                <h3 class="text-center">No Currency Added Yet</h3>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<form method="POST" action="{% url 'currency_create' %}">
+    {% csrf_token %}
+    <div class="modal fade" id="verticalycentered" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Currency</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+                    <div class="form-floating col-6">
+                        {{ form.name }}
+                        <input type="hidden" name="user" value="{{ user.id }}" />
+                        <label for="floatingName">Currency <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+                        {{ form.symbol }}
+                        <label for="floatingName">Currency Symbol <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+
+                    <div class="form-floating col-6">
+                        {{ form.country }}
+                        <label for="floatingName">Country<span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+
+                        {{ form.exchange_rate }}
+                        <label for="floatingName">Exchange Rate<span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+                        {{ form.status }}
+                        <label for="floatingName">Status<span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div><br />
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% for currency in currency_list %}
+<form method="POST" action="{% url 'currency_edit' currency.id %}">
+    {% csrf_token %}
+    <div class="modal fade" id="edit{{ forloop.counter }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Currency</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+                    <input type="hidden" name="updated_by" value="{{ user.id }}" />
+                    <div class="form-floating col-6">
+                        <input type="text" name="name" value="{{ currency.name|lower }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Currency <span style="color:red"><b>*</b></span></label>
+                    </div><br />
+
+                     <div class="form-floating col-6">
+                        <input type="text" name="symbol" value="{{ currency.symbol }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Currency Symbol <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <select name="country" required class="form-control">
+                            <option value="">-----------</option>
+                            {% for country in country_list %}
+                            <option value="{{country.id}}" {% if currency.country == country %} selected {% endif %}>{{ country|upper }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="floatingName">Country <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <input type="number" name="exchange_rate" value="{{ currency.exchange_rate }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Exchange Rate <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <select name="status" required class="form-control">
+                            <option value="">-----------</option>
+                            <option value="active" {% if currency.status|lower == 'active' %} selected {% endif %}>Active</option>
+                            <option value="inactive" {% if currency.status|lower == 'inactive' %} selected {% endif %}>Inactive</option>
+                        </select>
+                        <label for="floatingName">Status <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endfor %}
+
+
+{% endblock %}

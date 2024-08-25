@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+{% load static %}
+{% load humanize %}
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>{{ site_info.name|upper }} / Student Registration </title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'admin_site/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'admin_site/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'admin_site/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+
+  <link href="{% static 'admin_site/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'admin_site/styles/style.css' %}" rel="stylesheet">
+
+
+</head>
+
+<body>
+
+  <main>
+    <div class="container">
+
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8 d-flex flex-column align-items-center justify-content-center">
+
+              <div class="card mb-3">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-center pt-4">
+                        <a href="{% url 'homepage' %}" class="logo d-flex align-items-center w-auto">
+                          <img src="{{ site_info.logo.url }}" alt="">
+                        </a>
+                      </div><!-- End Logo -->
+
+                  <div class=" pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Create an Account</h5>
+                    <p class="text-center small">Enter your personal details to create account</p>
+                  </div>
+		{% if form.errors %}
+    {% for key, error in form.errors.items %}
+        <h5 class="text-danger">{{error}}</h5>
+    {% endfor %}
+{% endif %}
+
+                  <form method="post" action="" class="row g-3 needs-validation">
+                    {% csrf_token %}
+                    <div class="col-md-6">
+                      <label for="yourName" class="form-label">Surname</label>
+                      {{form.surname}}
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourName" class="form-label">First Name</label>
+                      {{form.last_name}}
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourName" class="form-label">Gender</label>
+                      {{form.gender}}
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourName" class="form-label">Email</label>
+                      {{form.email}}
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourName" class="form-label">Country</label>
+                      <select name="country" id="country" required class="form-control">
+                        <option value="">---------------</option>
+                        {% for country in country_list %}
+                        <option value="{{ country.id }}" country_code="{{country.long_code_name}}" call_code="{{country.country_code}}">{{ country|upper }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourName" class="form-label">State</label>
+                      <select class="form-control" id="state" name="state" required>
+                          <option value="">-----------</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourUsername" class="form-label">Mobile</label>
+                      <div class="input-group has-validation">
+                        <span class="input-group-text" id="country-code" style="min-width:50px">
+
+                        </span>
+                        {{ form.mobile }}
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourEmail" class="form-label">Photo</label>
+                      {{form.image}}
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="yourEmail" class="form-label">Available Cohorts</label>
+                      <select name="cohort" class="form-control" id="cohort" required>
+                          <option value="">----------</option>
+                          {% for cohort in cohort_list %}
+                          <option value="{{cohort.id}}" start_date="{{cohort.start_date|date}}" end_date="{{cohort.end_date|date}}" start_date_natural="{{cohort.start_date|naturaltime}}" end_date_natural="{{cohort.end_date|naturaltime}}" status="{{cohort.status}}">{{ cohort|title }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+
+                    <div class="col-md-6">
+                      <p id="cohort_status" style="margin-top:20px;font-weight:bold;font-size:14px"></p>
+                    </div>
+
+                    <div class="col-12">
+                      <button class="btn btn-primary w-50" style="margin-left:25%" type="submit">Create Account</button>
+                    </div>
+                    <div class="col-12">
+                      <p class="small mb-0">Already have an account? <a href="{% url 'student_login' %}">Log in</a></p>
+                    </div>
+                  </form>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+      </section>
+
+    </div>
+  </main><!-- End #main -->
+
+<script src="{% static 'admin_site/scripts/jquery.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        $('#cohort').change(function(){
+            if($(this).val() == ''){
+                $('#cohort_status').html('')
+            } else {
+                $('#cohort_status').hide()
+                start_date = $(this).find("option:selected").attr('start_date');
+                end_date = $(this).find("option:selected").attr('end_date');
+                start_date_natural = $(this).find("option:selected").attr('start_date_natural');
+                end_date_natural = $(this).find("option:selected").attr('end_date_natural');
+                status = $(this).find("option:selected").attr('status');
+
+                if(status == '0') {
+                    cohort_status = `Cohort Status: Not Started, Start Date: ${start_date} to ${end_date} which is ${start_date_natural}.`
+                } else {
+                     cohort_status = `Cohort Status: Started, Cohort Started ${start_date_natural} (${start_date}) and ends in ${end_date_natural} (${end_date}).`
+                }
+                $('#cohort_status').html(cohort_status)
+                 $('#cohort_status').fadeIn()
+            }
+        })
+
+        $('#country').change(function() {
+            const countryCode = $("#country").find("option:selected").attr('call_code');
+            if (countryCode) {
+              $("#country-code").text('+'+countryCode)
+            } else {
+              $("#country-code").text('')
+            }
+            fetchStates()
+        });
+    })
+
+    function fetchStates() {
+        const country = $("#country").find("option:selected").attr('country_code');
+
+        fetch('https://countriesnow.space/api/v0.1/countries/states', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ country: country }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const statesList = document.getElementById('state');
+            statesList.innerHTML = "<option value=''>----------</option>"
+            if (data.data) {
+                data.data.states.forEach(state => {
+                    const listItem = document.createElement('option');
+                    listItem.textContent = state.name;
+                    statesList.appendChild(listItem);
+                });
+            }
+
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+
+</body>
+
+</html>

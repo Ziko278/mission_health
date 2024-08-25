@@ -1,0 +1,82 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% block 'main' %}
+{% load humanize %}
+<section class="container">
+    <div class="card">
+        <div class="card-body">
+
+            <div class="" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="card-title" style="font-family:courier"><b>Fee Payment with Paystack </b></h4>
+
+                    <form id="paymentForm">
+                        <div class="form-group">
+                            <h4 class="card-title" style="font-family:courier">
+                                <b>You are about to pay the sum of {{ amount_in_word|title }} {{ default_currency|title }}
+                                    ({{default_currency.symbol}}{{amount|floatformat|intcomma}}) as fees for {{ enrollment.course|title }} </b>
+                            </h4>
+                            <input type="hidden" id="reference" name="reference" value="{{enrolment.id }}" />
+                            <input type="hidden" id="amount" required="required" value="{{amount|floatformat}}">
+                            <br />
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" onclick="payWithPaystack()" required="required" class="btn btn-outline-primary">Make Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- End Service Item -->
+
+
+        </div>
+    </div>
+</section><!-- End Featured Services Section -->
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+    var paymentForm = document.getElementById('paymentForm');
+paymentForm.addEventListener('submit', payWithPaystack, false)
+
+function payWithPaystack(e){
+    e.preventDefault();
+
+    var handler = PaystackPop.setup({
+        key: '{{paystack_secret_key}}',
+        amount: {{ amount|floatformat}} * 100,
+        email: '{{site_info.email}}',
+        currency: 'NGN',
+        metadata: {
+            custom_fields: [
+                {
+                    display_name: "Student ID",
+                    variable_name: "student_id",
+                    value: '{{ student.id }}'
+                },
+                {
+                    display_name: "Enrollment ID",
+                    variable_name: "enrollment_id",
+                    value: '{{ enrollment.id }}'
+                },
+                {
+                    display_name: "Currency ID",
+                    variable_name: "currency_id",
+                    value: '{{ default_currency.id }}'
+                },
+
+            ]
+        },
+        callback: function(response){
+            var reference = response.reference;
+            window.location = '{{ callback_url }}' + '?reference=' +reference + '&paystack_id=' + {{paystack_id}}
+        },
+        onClose: function(response){
+            window.location = '{{ callback_url }}'
+        },
+    });
+
+    handler.openIframe();
+
+}
+
+</script>
+{%endblock %}

@@ -1,0 +1,286 @@
+{% extends 'admin_site/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+{% if form.errors %}
+    <h5 class="text-danger">{{form.errors}}</h5>
+{% endif %}
+
+<div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Name: {{ student|title }} <br />
+                Reg No: {{ student.registration_number|upper }} <br />
+                Country: {{ student.country|upper }} ({{ student.state|title }})
+                <img class="rounded-circle" style="margin-top:-30px;display:inline;float:right;width:100px;height:100px;border-radius:5px;" {% if student.image %} src="/media/{{ student.image }}" {% else %} src="{% static 'admin_site/images/default_image.jpg' %}" {% endif %} /></h4>
+
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body pt-3">
+                <ul class="nav nav-tabs nav-tabs-bordered">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Take Payment</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#current-payment">Payments</button>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#payment-dashboard">Dashboard</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content pt-2">
+                    <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                        {{ form.errors }}
+                        <form method="POST" action="" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                            <div class="modal-body row">
+                                <div class="form-floating col-6">
+                                    <select required name="course" style="padding-left:15px" class="form-control">
+                                        <option value="">-------------</option>
+                                        {% for course in course_list %}
+                                        <option amount="{{course.amount|floatformat}}" value="{{course.id}}">{{ course|upper }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="hidden" name="student" value="{{ student.id }}" />
+                                    <input type="hidden" name="user" value="{{ user.id }}" />
+                                    <input type="hidden" name="payment_method" value="offline" />
+                                    <label for="floatingName">Course <span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+                                <div class="form-floating col-6">
+                                    {{ form.amount_paid }}
+                                    <label for="floatingName">Amount <span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+
+                                <div class="form-floating col-6">
+                                    {{ form.currency }}
+                                    <label for="floatingName">Currency<span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+                                <div class="form-floating col-6">
+
+                                    {{ form.payment_proof }}
+                                    <label for="floatingName">Payment Proof<span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+                                <div class="form-floating col-6">
+                                    {{ form.account }}
+                                    <label for="floatingName">Bank Account<span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+                                <div class="form-floating col-6">
+                                    <input type="submit" value="Save Payment" class="btn btn-primary">
+                                    <br>
+                                </div><br />
+
+                            </div>
+
+                        </form>
+                    </div>
+
+                           <div class="tab-pane fade profile-edit pt-3" id="current-payment">
+                        <div class="row">
+                            <div class="card-body">
+                                {% if payment_list %}
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Course</th>
+                                            <th scope="col">Amount Paid</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Payment Mode</th>
+                                            <th scope="col" class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in payment_list %}
+                                        <tr>
+                                            <th scope="row">{{ forloop.counter }}</th>
+                                            <td scope="row">{{ payment.course|title }}</td>
+                                            <td scope="row">{{ payment.currency.symbol }}{{ payment.amount_paid|intcomma }}</td>
+                                            <td scope="row">{{ payment.payment_date|date }}</td>
+                                            <td scope="row">{{ payment.payment_method|title }}</td>
+                                            <td scope="row" class="text-center">
+                                                <a title="View Fee Payment Detail" style="font-size:12px" class="btn btn-primary" {% if payment.status != "pending" %} href="{% url 'training_payment_detail' payment.id %}" {% endif %}><i class="bi bi-eye"></i> </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <br />
+
+
+
+                                {% else %}
+                                    <h3 class="card-title text-center">No Payment Made Yet</h3>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade profile-edit pt-3" id="payment-dashboard">
+                        <h5 class="card-title">Fee Payment Detail: {{ academic_info.session }} {{ academic_info.term|title }}</h5>
+
+                        <div class="row">
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-alarm-fill"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>N{{ current_fee|intcomma }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Current Fee</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-cash"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ fee_paid|intcomma }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Paid Fee</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-brightness-alt-high-fill"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ fee_discount|intcomma }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Discount</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle text-danger d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-flag-fill"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ fee_penalty|intcomma }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Penalty</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-x-diamond-fill"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>N{{ fee_balance|intcomma }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Balance</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-percent"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ percentage_paid }}%</h6>
+                                                <span class="text-muted small pt-2 ps-1">Percentage Paid</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-diamond-half"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ outstanding_fee|intcomma }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Outstanding Fee</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xxl-4 col-md-4">
+                                <div class="card info-card sales-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title"></h5>
+                                        <div class="d-flex align-items-center">
+                                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-currency-exchange"></i>
+                                            </div>
+                                            <div class="ps-3">
+                                                <h6>{{ total_fee|intcomma }}</h6>
+                                                <span class="text-muted small pt-2 ps-1">Total Balance</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock %}

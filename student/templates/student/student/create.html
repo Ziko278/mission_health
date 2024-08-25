@@ -1,0 +1,200 @@
+{% extends 'admin_site/layout.html' %}
+{% block 'main' %}
+{% load static %}
+{% load humanize %}
+<div class="row">
+    <div class="col-12 grid-margin">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">STUDENT REGISTRATION</h4>
+                {% if form.errors %}
+                <h5 class="text-danger">{{form.errors}}</h5>
+                {% endif %}
+                <form action="" class="row g-3 needs-validation" novalidate method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="col-12 grid-margin">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-title"> BASIC INFORMATION </p>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Surname<span style="font-size:20px;color:red">*</span></label>
+                                            <div class="col-sm-8">
+                                                {{form.surname}}
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Last Name<span style="font-size:20px;color:red">*</span></label>
+                                            <div class="col-sm-8">
+                                                {{form.last_name}}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-title"> OTHER INFORMATION </p>
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Cohort<span style="font-size:20px;color:red">*</span></label>
+                                            <div class="col-sm-8">
+                                                <select name="cohort" class="form-control" id="cohort" required>
+                                                    <option value="">----------</option>
+                                                    {% for cohort in cohort_list %}
+                                                    <option value="{{cohort.id}}" start_date="{{cohort.start_date|date}}" end_date="{{cohort.end_date|date}}" start_date_natural="{{cohort.start_date|naturaltime}}" end_date_natural="{{cohort.end_date|naturaltime}}" status="{{cohort.status}}">{{ cohort|title }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <p id="cohort_status" style="margin-top:20px;font-weight:bold"></p>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <input type="hidden" name="user" value="{{ user.id }}" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Email <span style="font-size:20px;color:red">*</span></label>
+                                <div class="col-sm-8">
+                                    {{form.email}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Gender <span style="font-size:20px;color:red">*</span></label>
+                                <div class="col-sm-8">
+                                    {{form.gender}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Country <span style="font-size:20px;color:red">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="country" id="country" required class="form-control">
+                                        <option value="">--------------</option>
+                                        {% for country in country_list %}
+                                        <option value="{{country.id}}" country_code="{{country.long_code_name}}">{{ country|title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">State <span style="font-size:20px;color:red">*</span></label>
+                                <div class="col-sm-8">
+                                    <select class="form-control" id="state" name="state" required>
+                                        <option value="">-----------</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Phone <span style="font-size:20px;color:red">*</span></label>
+                                <div class="col-sm-8">
+                                    {{form.mobile}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group row">
+                                <label class="col-sm-4 col-form-label">Photo</label>
+                                <div class="col-sm-8">
+                                    {{form.image}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group row"></div>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <br />
+                            <button style="width:150px;margin:10px" class="btn btn-primary btn-rounded">Register Student</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'admin_site/scripts/jquery.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        $('#cohort').change(function(){
+            if($(this).val() == ''){
+                $('#cohort_status').html('')
+            } else {
+                $('#cohort_status').hide()
+                start_date = $(this).find("option:selected").attr('start_date');
+                end_date = $(this).find("option:selected").attr('end_date');
+                start_date_natural = $(this).find("option:selected").attr('start_date_natural');
+                end_date_natural = $(this).find("option:selected").attr('end_date_natural');
+                status = $(this).find("option:selected").attr('status');
+
+                if(status == '0') {
+                    cohort_status = `Cohort Status: Not Started, Start Date: ${start_date} to ${end_date} which is ${start_date_natural}.`
+                } else {
+                     cohort_status = `Cohort Status: Started, Cohort Started ${start_date_natural} (${start_date}) and ends in ${end_date_natural} (${end_date}).`
+                }
+                $('#cohort_status').html(cohort_status)
+                 $('#cohort_status').fadeIn()
+            }
+        })
+
+        $('#country').change(function() {
+            fetchStates()
+        });
+    })
+
+    function fetchStates() {
+        const country = $("#country").find("option:selected").attr('country_code');
+
+        fetch('https://countriesnow.space/api/v0.1/countries/states', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ country: country }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const statesList = document.getElementById('state');
+            statesList.innerHTML = "<option value=''>----------</option>"
+            if (data.data) {
+                data.data.states.forEach(state => {
+                    const listItem = document.createElement('option');
+                    listItem.textContent = state.name;
+                    statesList.appendChild(listItem);
+                });
+            }
+
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+
+{%endblock %}

@@ -1,0 +1,52 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <h1 class="card-title px-4">Available Courses to Enroll {{ student }}</h1>
+        {% if course_list and student.my_course_list|length < course_list|length %}
+            {% for course in course_list %}
+            {% if course.id not in student.my_course_list %}
+            <div class="col-12">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center pt-3">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-calendar2-fill"></i>
+                            </div>
+                            <div class="ps-3">
+                                <h6>{{ course|title }}</h6>
+                                <span class="text small pt-1 fw-bold">{{ course.description }}</span> <span class="text-muted small pt-2 ps-1"></span>
+                                <h6>{{ default_currency }}{{ course.amount|floatformat|intcomma }}</h6>
+
+                            </div>
+
+                        </div>
+                        <a href="{% url 'student_enroll' course.id %}" class="{% if course.id in active_course_list %} disabled {% endif %} btn btn-outline-primary mt-3">Enroll</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center pt-4">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bi bi-x text-danger"></i>
+                            </div>
+                            <div class="ps-3">
+                                <h6 class="fs-4">There are no available course to register at the moment</h6>
+                                <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary mt-3">Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

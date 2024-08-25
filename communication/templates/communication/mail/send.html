@@ -1,0 +1,86 @@
+{% extends 'admin_site/layout.html' %}
+{% block 'main' %}
+{% load static %}
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+        <div class="card-body">
+            <h5 class="card-title">Send Message</h5>
+            <form method="POST" action="">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <select name="smtp" required class="form-control">
+                                <option value="">----- select email -----</option>
+                                {% for smtp in smtp_list %}
+                                <option {% if default_smtp == smtp %} selected {% endif %} value="{{smtp.id}}">{{ smtp|title }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingName">Email Account <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="form-floating">
+                            <input type="text" autocomplete="off" name="subject" value="{{message.title}}" class="form-control" required />
+                            <label for="floatingName">Mail Subject <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <input type="text" autocomplete="off" name="email" placeholder="Enter Mail Addresses separated by comma" class="form-control" />
+                            <label for="floatingName">Email Addresses Separated by comma <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <h4 class="card-title mx-3">Select Additional Recipients</h4>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select name="student_recipient" class="form-control">
+                                <option value="">----- select students -----</option>
+                                <option value="active student">Active Student</option>
+                                <option value="all student">All Student</option>
+                                {% for cohort in cohort_list %}
+                                <option value="{{cohort.id}}">{{ cohort|title }} Students</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingName">Student <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select name="staff_recipient" class="form-control">
+                                <option value="">----- select staff -----</option>
+                                <option value="all staff">All Staff</option>
+                                {% for position in position_list %}
+                                <option value="{{position.id}}">{{ position|title }} Staff</option>
+                                {% endfor %}
+                            </select>
+                            <label for="floatingName">Student <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="card"  style="height:400px;overflow:auto">
+                            <div class="card-body">
+                                <h5 class="card-title">MESSAGE</h5>
+                                <textarea class="tinymce-editor" name="message" style="height:300px">
+                                    {{ message.message }}
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="submit" style="width:200px;margin:auto" value="Send Mail" class="btn btn-success">
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

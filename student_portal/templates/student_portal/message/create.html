@@ -1,0 +1,49 @@
+{% extends 'student_portal/layout.html' %}
+{% block 'main' %}
+{% load static %}
+{% load humanize %}
+
+<div class="col-12">
+    <div class="card" style="overflow-x:auto">
+        <div class="card-body">
+            <h5 class="card-title">Send Message </h5>
+            {% if form.errors %}
+                <h5 class="text-danger">{{form.errors}}</h5>
+            {% endif %}
+           <form method="POST" action="">
+                {% csrf_token %}
+                <div class="modl" id="verticalycentered" tabindex="-1">
+                    <div class="modal-dialo mdal-lg">
+                        <div class="modal-cntent">
+
+                            <div class="modal-ody row">
+                                <br><br>
+                                <div class="form-floating col-12">
+
+                                    <input type="text" name="title" class="form-control" required>
+                                    <input type="hidden" value="{{user.user_student_profile.student.id}}" name="from_student">
+                                    <label for="floatingName">Title <span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+                                <div class="form-floating col-12" >
+                                    <textarea style="height:200px" name="message" required placeholder="Enter Message" maxlength="300" class="form-control"></textarea>
+                                    <label for="floatingName">Message <span style="color:red"><b>*</b></span></label>
+                                    <br>
+                                </div><br />
+
+
+                            </div>
+                            <div class="modal-footer" style="display:flex;justify-content:center">
+                                <br>
+                                <button type="submit" class="btn btn-primary">Send Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

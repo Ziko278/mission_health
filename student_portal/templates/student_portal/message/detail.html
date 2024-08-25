@@ -1,0 +1,57 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% load training_custom_filters %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card info-card sales-card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="ps-3">
+                                    <h6 class="fs-4">
+                                        <span class="fs-6">Title:</span>
+                                        <br>
+                                        {{ message.title|title }}
+                                    </h6>
+                                    <br>
+                                    <h6 class="fs-4">
+                                        <span class="fs-6">Detail:</span>
+                                        <br>
+                                    </h6>
+                                    <p class="card-description">{{ message.message }}</p>
+
+                                    <h6 class="fs-6">
+                                        <span class="fs-6">Date:</span>
+                                        <br>
+                                        {{ message.created_at }}
+                                    </h6>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center pt-3">
+                                <div class="ps-3">
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock %}

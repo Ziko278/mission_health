@@ -1,0 +1,112 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% load training_custom_filters %}
+{% block 'main' %}
+<section class="section dashboard">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card info-card sales-card">
+                        <div class="card-body">
+                            <h5 class="card-title"></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-calendar2-fill"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{% now "" %}</h6>
+                                    <span class="text small pt-1 fw-bold">Today's Date</span> <span class="text-muted small pt-2 ps-1"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card info-card revenue-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Student <span>| Detail</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    {% if student.image %}
+                                        <img src="{{student.image.url}}" width="60" height="60" class="rounded-circle" />
+                                    {% else %}
+                                         <img src="{% static 'admin_site/images/default_image.jpg' %}" width="60" height="60" class="rounded-circle" />
+                                    {% endif %}
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ student|title }}</h6>
+                                    <span class="text-grey small pt-1 fw-bold">{{ student.registration_number|upper }}</span> <span class="text-muted small pt-2 ps-1"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card info-card revenue-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Student <span>| Detail</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="ps-3">
+                                    <h6 class="fs-6">Country: {{ student.country|title }}</h6>
+                                    <h6 class="fs-6">State: {{ student.state|title }}</h6>
+                                    <h6 class="fs-6">Mobile: +{{ student.country.country_code }} {{ student.mobile}}</h6>
+                                    <h6 class="fs-6">Email: {{ student.email|lower }}</h6>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-12">
+                    <h2 class="card-title"><b>Active courses</b></h2>
+                    <div class="row">
+                    {% for enrollment in enrollment_list %}
+                    <div class="col-md-6 col-lg-4">
+                         <div class="card">
+                            <div class="card-body pb-0">
+                                <h5 class="card-title">{{ enrollment|title}} <span> </span></h5>
+                                    {% if enrollment.course|course_progress_percent:student.id > 0 %}
+                                         <canvas id="pieChart{{forloop.counter}}" style="height: 100px;"></canvas>
+                                        <h1 class="card-title text-center">Course Progress</h1>
+                                        {% endif %}
+                                      <script>
+                                        document.addEventListener("DOMContentLoaded", () => {
+                                          new Chart(document.querySelector('#pieChart{{forloop.counter}}'), {
+                                            type: 'pie',
+                                            data: {
+
+                                              datasets: [{
+                                                label: 'Active course',
+                                                data: [{{enrollment.course|course_progress_percent:student.id}}, {{enrollment.course|course_progress_percent_left:student.id}}],
+                                                backgroundColor: [
+                                                  'rgb(75, 192, 192)',
+                                                  'rgb(255, 255, 255)',
+
+                                                ],
+                                                hoverOffset: 4
+                                              }]
+                                            }
+                                          });
+                                        });
+                                      </script>
+
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

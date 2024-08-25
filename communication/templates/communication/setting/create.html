@@ -1,0 +1,43 @@
+{% extends 'admin_site/layout.html' %}
+{% load static %}
+{% block 'main' %}
+
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- row -->
+    <div class="row">
+
+        <div class="col-12">
+            <div class="card profile-card card-bx m-b30">
+                <div class="card-header">
+                    <h6 class="title">Communication Setting</h6>
+                </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6 m-b30">
+                                <br>
+                                <label class="form-label">Default Email Account</label>
+                                {{ form.default_smtp }}
+                            </div>
+                            <div class="col-sm-6 m-b30">
+                                <br>
+                                <label class="form-label">Auto-Save Sent Message</label>
+                                <br>
+                                {{ form.auto_save_sent_message }}
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input class="btn btn-primary" type="submit" value="SAVE" />
+
+                    </div>
+
+            </div>
+        </div>
+    </div>
+
+</form>
+{% endblock %}

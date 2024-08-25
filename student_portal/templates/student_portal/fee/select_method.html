@@ -1,0 +1,156 @@
+{% extends 'student_portal/layout.html' %}
+{% load static %}
+{% load humanize %}
+{% block 'main' %}
+<div class="col-12">
+    <div class="card info-card sales-card">
+        <div class="card-body">
+            <div class="d-flex align-items-center pt-4">
+                <div class="ps-3">
+                    <h6 class="fs-4">PAYMENT METHOD</h6>
+                    <br>
+                    <p class="text small pt-1 fs-5" style="font-family:sans-serif;">You are about to pay {{ amount_in_word|title }} {{ default_currency|title }} ({{default_currency.symbol}}{{amount|floatformat|intcomma}})
+                    as fee for {{ enrollment.course|title }}.
+                    <br>
+                        <b>Please select a suitable payment method.</b>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+
+        <div class="card-body">
+
+            <h5 class="card-title text-center">Available Payment Method</h5>
+            <div class="accordion accordion-flush" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-admission-permission">
+                        <button class="accordion-button collapsed card-title" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse1" aria-expanded="false" aria-controls="flush-collapseOne">
+                            OFFLINE METHODS
+                        </button>
+                    </h2>
+                    <div id="flush-collapse1" class="accordion-collapse collapse" aria-labelledby="admission-permission" data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+
+                                    <p class="card-description pt-4">Please crosscheck the account details before making
+                                    payment. On payment, submit proof of payment on the portal and await confirmation
+                                    </p>
+
+                                    {% for account in global_offline_list %}
+                                    <div class="p-3 my-3" style="background-color:lightgrey;border-radius:10px">
+                                        <h5 class="card-title"><span><b>Account Name:</b></span>
+                                            <br>
+                                            {{ account.account_name|title }}<br><br>
+                                        <span><b>Account Number: </b></span> <br>
+                                            {{ account.account_number|title }} <br><br>
+                                        <span><b>Bank Name:</b></span> <br>
+                                            {{ account.bank_name|title }} <br>
+                                        </h5>
+                                    </div>
+                                    {% endfor %}
+
+                                    {% for account in other_offline_list %}
+                                    <div class="p-3 my-3" style="background-color:lightgrey;border-radius:10px">
+                                        <h5 class="card-title"><span><b>Account Name:</b></span>
+                                            <br>
+                                            {{ account.account_name|title }}<br><br>
+                                        <span><b>Account Number: </b></span> <br>
+                                            {{ account.account_number|title }} <br><br>
+                                        <span><b>Bank Name:</b></span> <br>
+                                            {{ account.bank_name|title }} <br>
+                                        </h5>
+                                    </div>
+                                    {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-finance-permission">
+                        <button class="accordion-button collapsed card-title" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse3" aria-expanded="false" aria-controls="flush-collapseOne">
+                            ONLINE METHODS
+                        </button>
+                    </h2>
+                    <div id="flush-collapse3" class="accordion-collapse collapse" aria-labelledby="finance-permission" data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                                   <p class="card-description pt-4">Please select any convenient payment method, Your Payment will reflect
+                                       in once the payment completes successfully
+                                    </p>
+
+                                    {% for method in global_online_list %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                            {% if method.platform == 'paystack' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/paystack.png' %}">
+                                            {% elif method.platform == 'flutterwave' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/flutterwave.png' %}">
+                                            {% elif method.platform == 'paypal' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/paypal.png' %}">
+                                            {% elif method.platform == 'interswitch' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/interswitch.png' %}">
+
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="p-3 my-3">
+                                            <br>
+                                            <h6 class="">{{ method }}</h6>
+                                            <p>
+                                                {% if method.platform == 'paystack' %}
+                                                <a href="{% url 'pay_with_paystack' enrollment.id method.id %}?amount={{amount|floatformat}}" class="btn btn-primary">Proceed</a>
+                                                {% elif method.platform == 'paypal' %}
+                                                <a href="{% url 'pay_with_paypal' enrollment.id method.id %}?amount={{amount|floatformat}}" class="btn btn-primary">Proceed</a>
+                                                 {% endif %}
+
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                    {% for method in other_online_list %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                            {% if method.platform == 'paystack' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/paystack.png' %}">
+                                            {% elif method.platform == 'flutterwave' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/flutterwave.png' %}">
+                                            {% elif method.platform == 'paypal' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/paypal.png' %}">
+                                            {% elif method.platform == 'interswitch' %}
+                                                <img style="width:70px;height:70px;border-radius:35px;border:1px solid skyblue;" src="{% static 'admin_site/images/online_payment/interswitch.png' %}">
+
+                                            {% endif %}
+                                        </div>
+                                        <div class="ps-3">
+                                            <h6>{{ method }}</h6>
+                                            <p><br />
+                                                {% if method.platform == 'paystack' %}
+                                                <a href="{% url 'pay_with_paystack' enrollment.id method.id %}?amount={{amount|floatformat}}" class="btn btn-primary">Proceed</a>
+
+                                                {% elif method.platform == 'paypal' %}
+                                                 <a href="{% url 'pay_with_paypal' enrollment.id method.id %}?amount={{amount|floatformat}}" class="btn btn-primary">Proceed</a>
+
+                                                {% endif %}
+
+
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
