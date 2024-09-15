@@ -29,8 +29,8 @@
                     <th scope="col">#</th>
                     <th scope="col">Title</th>
                     <th scope="col">Course</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">Session Date</th>
+                    <th scope="col">Duration</th>
                     <th scope="col" style="width:250px" class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -39,16 +39,19 @@
                 {% for live_session in live_session_list %}
                 <tr>
                     <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
+                    <td title="{{live_session.description}}">{{ live_session.title }}</td>
                     <td>{{ live_session.course }}</td>
-                    <td title="created by {{ live_session.user|lower }} at {{ live_session.created_at|date }}">
-                        {{ live_session.title }}
-                    </td>
-
-                    <td>{{ live_session.description}}</td>
+                    <td>{{ live_session.session_date }} {{ live_session.session_time }}</td>
+                    <td>{{ live_session.duration }}</td>
 
                     <td class="text-center" style="width:200px">
-                         <a href="{% url 'live_session_detail' live_session.id %}" title="View Details" class="btn btn-primary"><i class="bi bi-eye"></i></a>
+                        {% if live_session.join_url %}
+                        <a href="{{live_session.join_url}}" title="Join Session" target="_blank" class="btn btn-primary"><i class="bi bi-link"></i></a>
+                        {% else %}
+                        <a href="#" title="Join Session" class="btn btn-primary"><i class="bi bi-link"></i></a>
+                        {% endif %}
                         <button type="button" title="Edit Live Session" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#edit{{ forloop.counter }}"><i class="bi bi-pencil-square"></i></button>
+
                         <a href="{% url 'live_session_delete' live_session.id %}" title="Delete Live Session" class="btn btn-danger"><i class="bi bi-trash"></i></a>
                     </td>
                 </tr>
@@ -107,6 +110,19 @@
                         <br>
                     </div><br />
 
+                    <div class="form-floating col-6">
+                        {{ form.duration }}
+                        <label for="floatingName">Expected Duration<span style="color:red"><b></b></span></label>
+                        <br>
+                    </div><br />
+
+                    <div class="form-floating col-6">
+                        {{ form.join_url }}
+                        <label for="floatingName">Join URL <span style="color:red"><b></b></span></label>
+                        <br>
+                    </div><br />
+
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
@@ -124,7 +140,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit live_session</h5>
+                    <h5 class="modal-title">Edit Live Session</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body row">
@@ -147,9 +163,34 @@
 
                     <div class="form-floating col-12">
                         <textarea name="description" class="form-control">{{ live_session.description }}</textarea>
-                        <label for="floatingName">Start Date <span style="color:red"><b>*</b></span></label>
+                        <label for="floatingName">Description <span style="color:red"><b>*</b></span></label>
                         <br>
                     </div>
+
+                    <div class="form-floating col-6">
+                        <input type="date" name="session_date" value="{{ live_session.session_date|date:'Y-m-d' }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Session Date <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <input type="time" name="session_time" value="{{ live_session.session_time|time:'H:i' }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Session Time <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <input type="text" name="duration" value="{{ live_session.duration }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Expected Duration <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
+                    <div class="form-floating col-6">
+                        <input type="text" name="join_url" value="{{ live_session.join_url }}" autocomplete="off" required class="form-control">
+                        <label for="floatingName">Join URL <span style="color:red"><b>*</b></span></label>
+                        <br>
+                    </div>
+
 
                 </div>
                 <div class="modal-footer">

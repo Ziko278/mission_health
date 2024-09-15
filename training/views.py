@@ -283,7 +283,7 @@ class LiveSessionCreateView(LoginRequiredMixin, PermissionRequiredMixin, Success
     success_message = 'Live Session Successfully Added'
 
     def get_success_url(self):
-        return reverse('live_session_detail', kwargs={'pk': self.object.pk})
+        return reverse('live_session_index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -297,7 +297,7 @@ class LiveSessionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
     permission_required = 'training.view_livesessionmodel'
     fields = '__all__'
     template_name = 'training/live_session/index.html'
-    context_object_name = "Live Session_list"
+    context_object_name = "live_session_list"
 
     def get_queryset(self):
         return LiveSessionModel.objects.all()
@@ -330,7 +330,7 @@ class LiveSessionUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Success
     success_message = 'Live Session Successfully Updated'
 
     def get_success_url(self):
-        return reverse('live_session_detail', kwargs={'pk': self.object.pk})
+        return reverse('live_session_index')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

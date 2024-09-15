@@ -92,7 +92,7 @@ class LiveSessionModel(models.Model):
     description = models.TextField(blank=True, null=True)
     session_date = models.DateField()
     session_time = models.TimeField()
-    duration = models.IntegerField()
+    duration = models.CharField(max_length=100, blank=True, null=True)
     meeting_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     join_url = models.URLField(blank=True, null=True)
     start_url = models.URLField(blank=True, null=True)

@@ -4,17 +4,17 @@
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Delete Lesson</h4>
-            <p>Lesson: <i>{{lesson.title|upper }}</i></p>
+            <h4 class="card-title">Delete Live Session</h4>
+            <p>Lesson: <i>{{live_session.title|upper }}</i></p>
 
-            <p>The lesson will be permanently deleted.</p>
+            <p>The Live Session will be permanently deleted.</p>
 
             <form style="display:inline" method="post">
                 {% csrf_token %}
 
                 <button class="btn btn-success">Proceed</button>
             </form>
-            <a class="btn btn-danger" href="{% url 'lesson_index' %}"> Cancel</a>
+            <a class="btn btn-danger" href="{% url 'live_session_index' %}"> Cancel</a>
         </div>
     </div>
 </div>
