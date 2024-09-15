@@ -1,0 +1,63 @@
+{% extends 'admin_site/layout.html' %}
+{% block 'main' %}
+{% load static %}
+
+<div class="col-12">
+    <div class="card recent-sales overflow-auto">
+
+        <div class="card-body">
+            <h5 class="card-title">Edit Lesson Notes {{form.errors}}</h5>
+
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="form-floating">
+                            {{ form.title }}
+                            <input type="hidden" name="lesson" value="{{ lesson_id }}" />
+                            <input type="hidden" name="user" value="{{ user.id }}" />
+                            <input type="hidden" name="material_type" value="note" />
+                            <label for="floatingName">Title <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-floating">
+                            {{ form.order }}
+                            <label for="floatingName">Order</label>
+                        </div><br />
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            {{ form.introduction }}
+                            <label for="floatingName">Description <span style="color:red"><b>*</b></span></label>
+                        </div><br />
+                    </div>
+
+
+                    <div class="col-md-12">
+                        <div class="card"  style="height:600px;overflow:auto">
+                            <div class="card-body">
+                                <h5 class="card-title">LESSON NOTE DETAIL</h5>
+                                <textarea class="tinymce-editor" name="note" style="height:300px">
+                                    {{ note|safe }}
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <a onclick="window.history.back()" class="btn btn-danger" >Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Note</button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

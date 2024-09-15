@@ -235,7 +235,7 @@ class LessonMaterialDetailView(LoginRequiredMixin, PermissionRequiredMixin, Deta
 class LessonMaterialUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = LessonMaterialModel
     permission_required = 'training.change_lessonmodel'
-    form_class = LessonMaterialForm
+    form_class = LessonMaterialEditForm
     template_name = 'training/lesson_material/edit.html'
     success_message = 'Lesson Material Successfully Updated'
 
@@ -244,6 +244,22 @@ class LessonMaterialUpdateView(LoginRequiredMixin, PermissionRequiredMixin, Succ
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        return context
+
+
+class LessonMaterialNoteUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = LessonMaterialModel
+    permission_required = 'training.change_lessonmodel'
+    form_class = LessonMaterialEditForm
+    template_name = 'training/lesson_material/edit_note.html'
+    success_message = 'Lesson Material Successfully Updated'
+
+    def get_success_url(self):
+        return reverse('lesson_material_detail', kwargs={'pk': self.object.lesson.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['note'] = self.object.note
         return context
 
 

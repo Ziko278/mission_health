@@ -4,8 +4,12 @@
 <div class="card">
     <div class="card-body ">
         <h5 class="card-title">Actions</h5>
-        <a title="Edit Note Detail" href="{% url 'lesson_material_edit' lesson_material.id %}" class="btn btn-warning"><i class="bi bi-pencil-square"></i></a>
-        <a title="Delete Note" href="{% url 'lesson_material_delete' lesson_material.id %}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+        {% if lesson_material.material_type != 'note' %}
+            <a title="Edit Material Detail" href="{% url 'lesson_material_edit' lesson_material.id %}" class="btn btn-warning"><i class="bi bi-pencil-square"></i></a>
+        {% else %}
+            <a title="Edit Note Detail" href="{% url 'lesson_material_note_edit' lesson_material.id %}" class="btn btn-warning"><i class="bi bi-pencil-square"></i></a>
+        {% endif %}
+        <a title="Delete Material" href="{% url 'lesson_material_delete' lesson_material.id %}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
     </div>
 </div>
 

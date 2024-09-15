@@ -19,6 +19,9 @@ urlpatterns = [
     path('lesson/material/index', LessonMaterialListView.as_view(), name='lesson_material_index'),
     path('lesson/material/<int:pk>/detail', LessonMaterialDetailView.as_view(), name='lesson_material_detail'),
     path('lesson/material/<int:pk>/edit', LessonMaterialUpdateView.as_view(), name='lesson_material_edit'),
+    path('lesson/<int:pk>/material/note/edit', LessonMaterialNoteUpdateView.as_view(),
+         name='lesson_material_note_edit'),
+
     path('lesson/material/<int:pk>/delete', LessonMaterialDeleteView.as_view(), name='lesson_material_delete'),
 
     path('live-session/create', LiveSessionCreateView.as_view(), name='live_session_create'),

@@ -78,6 +78,24 @@ class LessonMaterialForm(ModelForm):
         }
 
 
+class LessonMaterialEditForm(ModelForm):
+    """"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control',
+                'autocomplete': 'off'
+            })
+
+    class Meta:
+        model = LessonMaterialModel
+        exclude = ['lesson', 'user']
+        widgets = {
+
+        }
+
+
 class LiveSessionForm(ModelForm):
     """"""
     def __init__(self, *args, **kwargs):
