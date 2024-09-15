@@ -17,7 +17,7 @@ class StaffModel(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=GENDER)
 
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     staff_id = models.CharField(max_length=100, blank=True, null=True)
     is_trainer = models.BooleanField(default=False, blank=True)
