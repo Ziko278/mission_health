@@ -782,7 +782,7 @@ def password_reset_request(request):
                 context = {
                     "email": associated_user.email,
                     'domain': get_current_site(request).domain,
-                    'site_name': 'Mission Health International',
+                    'site_info': SiteInfoModel.objects.first(),
                     "uid": urlsafe_base64_encode(force_bytes(associated_user.pk)),
                     "user": associated_user,
                     'token': default_token_generator.make_token(associated_user),
