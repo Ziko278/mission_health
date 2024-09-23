@@ -833,6 +833,8 @@ def password_reset_confirm(request, uidb64=None, token=None):
             if form.is_valid():
                 form.save()  # Save the new password
                 messages.success(request, 'Password Reset successful')
+                if user.is_superuser:
+                    return redirect('admin_login')
                 return redirect('student_login')
         else:
             form = SetPasswordForm(user=user)  # Initialize the form for GET requests
