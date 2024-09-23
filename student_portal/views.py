@@ -124,6 +124,9 @@ def send_activation_mail(request, pk):
 
             return redirect(reverse('register_done'))
 
+    messages.error(request, 'an error occurred')
+    return redirect('homepage')
+
 
 def student_signup_done_view(request):
     if 'registration_done' in request.session:
@@ -775,48 +778,69 @@ def password_reset_request(request):
             data = password_reset_form.cleaned_data['email']
             associated_user = User.objects.filter(email=data).first()
             if associated_user:
-                subject = "Password Reset Requested"
-                email_template_name = "password_reset_email.html"
+                subject = "Password Reset"
                 context = {
                     "email": associated_user.email,
                     'domain': get_current_site(request).domain,
-                    'site_name': 'Your site',
+                    'site_name': 'Mission Health International',
                     "uid": urlsafe_base64_encode(force_bytes(associated_user.pk)),
                     "user": associated_user,
                     'token': default_token_generator.make_token(associated_user),
                     'protocol': 'http',
                 }
-                email = render_to_string(email_template_name, context)
                 try:
-                    send_mail(subject, email, 'your-email@gmail.com', [associated_user.email], fail_silently=False)
-                except BadHeaderError:
+                    communication_setting = CommunicationSettingModel.objects.first()
+                    if communication_setting:
+                        default_mail_account = communication_setting.default_smtp
+                        if default_mail_account:
+
+                            mail_sent = send_custom_email(
+                                subject=subject,
+                                recipient_list=[associated_user.email],
+                                email_id=default_mail_account.id,
+                                template_name='student_portal/message/password_reset_template.html',
+                                context=context
+                            )
+                            messages.success(request, 'A password recovery mail has been sent to your email address')
+                            return redirect(reverse('student_password_reset'))
+
+                        return redirect("student_password_reset")
+                except Exception:
                     messages.error(request, 'An Error has Occured, Try Later')
-                    return redirect("password_reset")
-                return redirect("password_reset_done")
-    password_reset_form = PasswordResetForm()
+                    return redirect("student_password_reset")
+
+            else:
+                messages.error(request, 'No user with specified email found')
+    else:
+        password_reset_form = PasswordResetForm()
     return render(request, "student_portal/password_reset.html", {"password_reset_form": password_reset_form})
 
 
 def password_reset_confirm(request, uidb64=None, token=None):
-    logout(request)
-    if request.method == 'POST':
-        form = SetPasswordForm(user=request.user, data=request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('password_reset_complete')
-    else:
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
+    logout(request)  # Ensure user is logged out
 
-        if user is not None and default_token_generator.check_token(user, token):
-            form = SetPasswordForm(user=user)
+    # Attempt to decode uid and find user
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    # Check token validity for the identified user
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user=user, data=request.POST)  # Use the identified user
+            if form.is_valid():
+                form.save()  # Save the new password
+                messages.success(request, 'Password Reset successful')
+                return redirect('student_login')
         else:
-            return HttpResponse('Password reset link is invalid.')
+            form = SetPasswordForm(user=user)  # Initialize the form for GET requests
 
-    return render(request, 'password_reset_confirm.html', {'form': form})
+    else:
+        return HttpResponse('Password reset link is invalid.')
+
+    return render(request, 'student_portal/password_reset_confirm.html', {'form': form})
 
 
 @login_required
